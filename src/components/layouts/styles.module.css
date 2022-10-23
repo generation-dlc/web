@@ -1,0 +1,50 @@
+@keyframes menuShow {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes menuHide {
+  to {
+    opacity: 0;
+  }
+}
+
+.menu {
+  font-size: 0.925rem;
+  user-select: none;
+  box-shadow: 1px 1px 20px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  padding: 6px;
+  min-width: 100%;
+}
+
+.menuOpening {
+  composes: menu;
+  animation: menuShow 0.15s ease-out;
+}
+
+.menuClosing {
+  composes: menu;
+  animation: menuHide 0.2s ease-out forwards;
+}
+
+.menuItem {
+  border-radius: 6px;
+  padding: 0.375rem 0.625rem;
+  min-width: 15rem;
+}
+
+.menuItemHover {
+  composes: menuItem;
+  color: #fff;
+  background-color: #2b6bfe;
+}
+
+.submenuItem {
+  position: relative;
+}
+
+.menuDivider {
+  margin: 0.5rem 0.625rem;
+}
