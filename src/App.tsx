@@ -4,7 +4,7 @@ import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { fr, en } from "./translations";
-import { Home, AskEmail, ResetPassword, Maintenance } from "./components/core";
+import { Search, AskEmail, ResetPassword, Maintenance } from "./components/core";
 import BaseLayout from "./components/layouts/BaseLayout";
 import SignIn from "./components/authentication/SignIn";
 import { useUserService } from "./services";
@@ -16,7 +16,7 @@ import AdminLayout from "./components/layouts/AdminLayout";
 import { Roles } from "./types";
 import { useConfigService } from "./services/config";
 import { useConfig, useRemoveConfig, useSaveConfig } from "./store/reducers/config-reducer";
-import UserLayout from "./components/layouts/UserLayout";
+import AppLayout from "./components/layouts/AppLayout";
 
 i18n
   .use(LanguageDetector)
@@ -66,7 +66,7 @@ function App() {
       {token && profile.role === Roles.ADMIN
         ? <>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route path="/admin/test" element={<></>} />
+            <Route path="/admin/test" element={<>test</>} />
             <Route index element={<Navigate to="/admin/test" replace />} />
           </Route>
           <Route path="/sign-in" element={<Navigate to="/admin/test" replace />} />
@@ -86,9 +86,11 @@ function App() {
               </Route>
               <Route path="*" element={<Navigate to="/sign-in" replace />} />
             </>
-            : <Route element={<UserLayout />}>
-              <Route index element={<Home />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+            : <Route element={<AppLayout />}>
+              <Route index element={<Navigate to="/search" replace />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="product/:id" element={<>description</>} />
+              <Route path="*" element={<>Error 404</>} />
             </Route>
       }
     </Routes>
