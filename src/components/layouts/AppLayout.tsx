@@ -25,21 +25,14 @@ function SearchLayout() {
   >
     {/* content */}
     <ScrollArea
-      sx={{ marginTop: "5%", height: "91%", width: "100%" }}
+      style={{ height: "100%" }}
       styles={{
-        viewport: { "& > div": { height: "100%", padding: 70 } }
+        viewport: { "& > div": { height: "100%" } }
       }}
     >
       <Outlet />
     </ScrollArea>
   </AppShell>
 }
-
-const useStyles = createStyles((theme) => ({
-  navbar: {
-    padding: theme.spacing.lg,
-    height: "91%"
-  }
-}));
 
 export default SearchLayout

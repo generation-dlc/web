@@ -12,7 +12,7 @@ export default function AppHeader() {
   const token = useToken();
 
   return (
-    <Header height={"9%"} p="sm" pl={0} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <Header height={"9vh"} p="sm" pl={0} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <Center style={{ height: "100%", width: 350 }}>
         <Title>Sell For Crypto</Title>
       </Center>
@@ -23,41 +23,45 @@ export default function AppHeader() {
             <Button variant="white" onClick={() => { }}>{t("common.signIn")}</Button>
             <Button onClick={() => { }}>{t("common.signUp")}</Button>
           </Group>
-          : <Menu shadow="md" width={220} withArrow arrowOffset={0}>
-            <Menu.Target>
-              <ActionIcon radius="xl" variant="outline">
-                <Avatar radius="xl" size="lg" />
-              </ActionIcon>
-            </Menu.Target>
+          : <Group spacing={"xl"}>
+            <Button onClick={() => { }}>+ {t("common.placeAnAd")}</Button>
 
-            <Menu.Dropdown>
-              <Menu.Item
-                icon={<AiOutlineMessage size={14} />}
-                rightSection={false
-                  ? <div style={{ height: 10, width: 10, borderRadius: 20, backgroundColor: "red" }} />
-                  : <></>
-                }
-              >
-                {t("user.menu.messages")}
-              </Menu.Item>
-              <Menu.Item icon={<HiOutlineHeart size={14} />}>
-                {t("user.menu.favorites")}
-              </Menu.Item>
-              <Menu.Item icon={<GrTransaction size={14} />}>
-                {t("user.menu.track")}
-              </Menu.Item>
-              <Menu.Item icon={<FaHistory size={14} />}>
-                {t("user.menu.history")}
-              </Menu.Item>
-              <Menu.Item icon={<AiTwotoneSetting size={14} />}>
-                {t("user.menu.settings")}
-              </Menu.Item>
-              <Menu.Divider />
-              <Menu.Item color="red" icon={<VscSignOut size={14} />}>
-                {t("common.signOut")}
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+            <Menu shadow="md" width={220} withArrow arrowOffset={0}>
+              <Menu.Target>
+                <ActionIcon radius="xl" variant="outline">
+                  <Avatar radius="xl" size="lg" />
+                </ActionIcon>
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Item
+                  icon={<AiOutlineMessage size={14} />}
+                  rightSection={false
+                    ? <div style={{ height: 10, width: 10, borderRadius: 20, backgroundColor: "red" }} />
+                    : <></>
+                  }
+                >
+                  {t("user.menu.messages")}
+                </Menu.Item>
+                <Menu.Item icon={<HiOutlineHeart size={14} />}>
+                  {t("user.menu.favorites")}
+                </Menu.Item>
+                <Menu.Item icon={<GrTransaction size={14} />}>
+                  {t("user.menu.track")}
+                </Menu.Item>
+                <Menu.Item icon={<FaHistory size={14} />}>
+                  {t("user.menu.history")}
+                </Menu.Item>
+                <Menu.Item icon={<AiTwotoneSetting size={14} />}>
+                  {t("user.menu.settings")}
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Item color="red" icon={<VscSignOut size={14} />}>
+                  {t("common.signOut")}
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
         }
       </Group>
     </ Header>

@@ -1,3 +1,4 @@
+import { Global } from "@emotion/react";
 import { Button, MantineProvider, Title, Text, Textarea, Stack, Group, ButtonProps, ColorScheme, ColorSchemeProvider, useMantineTheme, useMantineColorScheme } from "@mantine/core";
 import { ContextModalProps, ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
@@ -102,8 +103,9 @@ function Root() {
           crakotte: ["#95b5ff", "#80a6fe", "#6b97fe", "#5589fe", "#407afe", "#2b6bfe", "#2760e5", "#2256cb", "#1e4bb2", "#1a4098"],
           red: ["#EEC8C6", "#EAB0AD", "#E89995", "#E8817C", "#DF716C", "#D6645E", "#CC5852", "#C24E48", "#B54843", "#A44742"],
         },
-        fontFamily: "Montserrat, sans-serif",
         primaryColor: "crakotte",
+        fontFamily: "Montserrat, sans-serif",
+        fontFamilyMonospace: "Monaco, Courier, monospace",
         headings: {
           fontFamily: "Montserrat, sans-serif",
         },
@@ -162,6 +164,44 @@ function Root() {
           }
         }
       }}>
+      {/* <Global styles={[
+        {
+          "@font-face": {
+            fontFamily: "Montserrat",
+            src: `url("Montserrat-Regular.ttf") format("truetype")`,
+            fontWeight: "normal",
+            fontStyle: "normal",
+            fontDisplay: "swap",
+          }
+        },
+        {
+          "@font-face": {
+            fontFamily: "Montserrat",
+            src: `url("Montserrat-Bold.ttf") format("truetype")`,
+            fontWeight: "bold",
+            fontStyle: "normal",
+            fontDisplay: "swap",
+          }
+        },
+        {
+          "@font-face": {
+            fontFamily: "Montserrat",
+            src: `url("Montserrat-Medium.ttf") format("truetype")`,
+            fontWeight: "medium",
+            fontStyle: "normal",
+            fontDisplay: "swap"
+          }
+        },
+        {
+          "@font-face": {
+            fontFamily: "Montserrat",
+            src: `url("Montserrat-SemiBold.ttf") format("truetype")`,
+            fontWeight: "semi-bold",
+            fontStyle: "normal",
+            fontDisplay: "swap"
+          }
+        }
+      ]} /> */}
       <NotificationsProvider>
         {/* @ts-ignore */}
         <ModalsProvider
@@ -172,7 +212,7 @@ function Root() {
         </ModalsProvider>
       </NotificationsProvider>
     </MantineProvider>
-  </ColorSchemeProvider>
+  </ColorSchemeProvider >
 }
 
 export default Root

@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Box, createStyles, Group, Stack, Text, Pagination, ActionIcon, Navbar, Avatar, Button, Input, NumberInput, Checkbox } from "@mantine/core";
-import styled from "styled-components";
-import Rate from "rc-rate";
 import 'rc-rate/assets/index.css';
 import {
   Menu as MultipleLevelMenu,
@@ -21,12 +19,7 @@ import { GiClothes } from "react-icons/gi"
 import { FaChevronRight, FaHandshake } from "react-icons/fa";
 import { BiBasketball } from "react-icons/bi"
 import { useIsDark } from "../../Root";
-
-const StyledRate = styled(Rate)`
-  &.rc-rate {
-    font-size: ${({ size }: { size: number }) => size}px;
-  }
-`
+import UserRate from "../common/UserRate";
 
 function Search() {
   const { t } = useTranslation();
@@ -38,7 +31,7 @@ function Search() {
   const [results, setResults] = useState<Array<any>>([
     {
       _id: "1",
-      image: "https://di2ponv0v5otw.cloudfront.net/posts/2020/12/03/5fc9d80cbb59373e3bef73c2/m_5fc9d8209207861a6e318286.jpg",
+      images: ["https://di2ponv0v5otw.cloudfront.net/posts/2020/12/03/5fc9d80cbb59373e3bef73c2/m_5fc9d8209207861a6e318286.jpg"],
       title: "ps5 never used completely new !!!", // > 60 characteres 
       price: 700,
       creationDate: new Date().toISOString(),
@@ -53,7 +46,7 @@ function Search() {
     },
     {
       _id: "2",
-      image: "https://external-preview.redd.it/CngC5P89BYdlls9ZS49Njhfc8S4Upd8i6OUhWIDgf1E.jpg?auto=webp&s=75e5d5b928f693294b7369b8302ae41eae4492ae",
+      images: ["https://external-preview.redd.it/CngC5P89BYdlls9ZS49Njhfc8S4Upd8i6OUhWIDgf1E.jpg?auto=webp&s=75e5d5b928f693294b7369b8302ae41eae4492ae"],
       title: "ps5 in its box", // > 60 characteres 
       price: 520,
       creationDate: new Date().toISOString(),
@@ -65,9 +58,10 @@ function Search() {
         sells: 3,
         stars: 2.1
       }
-    }, {
+    },
+    {
       _id: "3",
-      image: "https://i.ebayimg.com/images/g/RykAAOSw8W1jR6nj/s-l500.jpg",
+      images: ["https://i.ebayimg.com/images/g/RykAAOSw8W1jR6nj/s-l500.jpg"],
       title: "Broken PS5", // > 60 characteres 
       price: 200,
       creationDate: new Date().toISOString(),
@@ -81,7 +75,7 @@ function Search() {
     },
     {
       _id: "4",
-      image: "https://smartmania.cz/wp-content/uploads/2021/01/PlayStation_5_recenze.jpg",
+      images: ["https://smartmania.cz/wp-content/uploads/2021/01/PlayStation_5_recenze.jpg"],
       title: "Playsation 5 in perfect conditions", // > 60 characteres 
       price: 550,
       creationDate: new Date().toISOString(),
@@ -98,9 +92,9 @@ function Search() {
 
   return <>
     <Filters />
-    <Box className={classes.rootContainer}>
+    <div className={classes.rootContainer}>
       <Stack style={{ gap: 5 }}>
-        <Text size="xl">{search}</Text>
+        <Text size="xl" weight={"bold"}>{search}</Text>
         <Text style={{ color: "grey" }} size="sm">100 {t("user.search.results")}</Text>
       </Stack>
 
@@ -112,13 +106,15 @@ function Search() {
           >
             {/* image */}
             <div style={{ display: "flex", justifyContent: "center", width: "25%", height: "100%", borderRadius: 20, overflow: "hidden", cursor: "pointer", backgroundColor: "#F6F7F9" }}>
-              <img
-                src={result.image}
-                alt={search}
-                height="auto"
-                width={"100%"}
-                style={{ objectFit: "cover" }}
-              />
+              <a href={"/classified-ad/" + result._id} style={{ display: "flex" }}>
+                <img
+                  src={result.images[0]}
+                  alt={search}
+                  height="auto"
+                  width={"100%"}
+                  style={{ objectFit: "cover" }}
+                />
+              </a>
             </div>
 
             {/* info */}
@@ -132,7 +128,8 @@ function Search() {
                     style={{ display: "inline-block" }}
                     sx={() => ({ cursor: "pointer", "&:hover": { color: "#2b6bfe" } })}
                     component="a"
-                    href={"/" + result.category.toLowerCase() + "/" + result._id}
+                    href={"/classified-ad/" + result._id}
+                    weight="bold"
                   >
                     {result.title}
                   </Text>
@@ -154,7 +151,7 @@ function Search() {
                     <Avatar radius="xl" />
                   </Group>
                   <Group style={{ gap: 0 }}>
-                    <StyledRate
+                    <UserRate
                       defaultValue={(() => {
                         const res = Math.round(result.creator.stars % 1 * 10 / 5) * 5
                         return Math.floor(result.creator.stars) + res / 10
@@ -172,7 +169,7 @@ function Search() {
               {/* price */}
               <Stack style={{ flex: 1, justifyContent: "flex-end" }}>
                 <Group>
-                  <Text size="xl">
+                  <Text size="xl" weight="bold">
                     ${result.price}
                   </Text>
                   <img
@@ -185,7 +182,7 @@ function Search() {
             </Stack>
 
             {/* add to favorite */}
-            <ActionIcon style={{ position: "absolute", bottom: 20, right: 20 }}>
+            <ActionIcon style={{ position: "absolute", bottom: 20, right: 20 }} radius={"xl"}>
               <HiOutlineHeart size={"100%"} />
             </ActionIcon>
           </Group>
@@ -199,7 +196,7 @@ function Search() {
           total={10}
         />
       </Group>
-    </Box>
+    </div>
   </>
 }
 
@@ -230,7 +227,10 @@ const Filters = () => {
       name: "Fashion",
       childrens: [
         {
-          name: "Clothes"
+          name: "T-shirt"
+        },
+        {
+          name: "Sweater"
         },
         {
           name: "Jeans"
@@ -239,13 +239,16 @@ const Filters = () => {
           name: "Shoes"
         },
         {
-          name: "Watches"
-        },
-        {
           name: "Baby Clothes"
         },
         {
-          name: "Luxury"
+          name: "Watches"
+        },
+        {
+          name: "Sunglasses"
+        },
+        {
+          name: "Bracelet & Necklace"
         }
       ]
     },
@@ -339,7 +342,7 @@ const Filters = () => {
     >
       <Group>
         {props.showIcon && getRightIcon(props.categoryName)}
-        <Text>{props.label}</Text>
+        <Text weight="bold">{props.label}</Text>
       </Group>
     </MenuItemInner >
   );
@@ -354,19 +357,19 @@ const Filters = () => {
   );
 
   return (
-    <Navbar width={{ base: "23%" }} className={classes.navbar} >
+    <Navbar width={{ base: "40vh" }} className={classes.navbar} >
       <Navbar.Section sx={{ display: "flex", flex: 1, flexDirection: "column", padding: 10 }}>
         <Stack style={{ flex: 1, gap: "2rem" }}>
           <Group position="apart">
-            <Text color="grey">{t("user.search.filters")}</Text>
-            <Text sx={() => ({ cursor: "pointer" })} onClick={() => console.log("clear")}>
+            <Text color="grey" weight="bold">{t("user.search.filters")}</Text>
+            <Text weight="bold" sx={() => ({ cursor: "pointer" })} onClick={() => console.log("clear")}>
               {t("user.search.clearAll")}
             </Text>
           </Group>
 
           {/* search */}
           <Stack style={{ gap: 5 }}>
-            <Text>{t("user.search.search")}</Text>
+            <Text weight="bold">{t("user.search.search")}</Text>
             <Input
               placeholder="playstation 5"
               rightSection={<HiSearch />}
@@ -375,7 +378,7 @@ const Filters = () => {
 
           {/* categories */}
           <Stack style={{ gap: 5 }}>
-            <Text>{t("user.search.categories")}</Text>
+            <Text weight="bold">{t("user.search.categories")}</Text>
             <MultipleLevelMenu
               transition
               menuClassName={menuClassName}
@@ -387,7 +390,7 @@ const Filters = () => {
                   leftIcon={getRightIcon(selectedCategory.category)}
                   variant="default"
                 >
-                  {selectedCategory.label}
+                  <Text weight="bold">{selectedCategory.label}</Text>
                 </Button>
               }>
 
@@ -400,7 +403,7 @@ const Filters = () => {
                     label={() =>
                       <Group>
                         {getRightIcon(category.name)}
-                        {category.name}
+                        <Text weight="bold">{category.name}</Text>
                         <Group position="right" style={{ flex: 1 }}>
                           <FaChevronRight color="white" />
                         </Group>
@@ -420,17 +423,17 @@ const Filters = () => {
 
           {/* price */}
           <Stack style={{ gap: 5 }}>
-            <Text>Price Range ($)</Text>
+            <Text weight="bold">Price Range ($)</Text>
             <Stack align={"center"} style={{ padding: 20, borderStyle: "solid", borderWidth: 1, borderColor: "#EBEAED", borderRadius: 10 }}>
               <Group>
-                <NumberInput label="Min." style={{ flex: 1 }} sx={() => ({ label: { color: "grey" } })} />
-                <NumberInput label="Max." style={{ flex: 1 }} sx={() => ({ label: { color: "grey" } })} />
+                <NumberInput label="Min." style={{ flex: 1 }} sx={() => ({ label: { color: "grey", fontWeight: 700 }, input: { fontWeight: "bold" } })} />
+                <NumberInput label="Max." style={{ flex: 1 }} sx={() => ({ label: { color: "grey", fontWeight: 700 }, input: { fontWeight: "bold" } })} />
               </Group>
               <Checkbox
                 label="Including delivery price"
                 checked={deliveryChecked}
                 onChange={(event) => setDeliveryChecked(event.currentTarget.checked)}
-                sx={() => ({ label: { color: "grey" } })}
+                sx={() => ({ label: { color: "grey", fontWeight: 700 } })}
               />
             </Stack>
           </Stack>
@@ -446,7 +449,7 @@ const Filters = () => {
           {t("user.search.search")}
         </Button>
       </Navbar.Section>
-    </Navbar >
+    </Navbar>
   )
 }
 
@@ -456,13 +459,12 @@ const useStyles = createStyles(theme => ({
     height: "91%"
   },
   rootContainer: {
-    marginLeft: "23%",
-    width: "77%",
-    flex: 1,
-    display: "flex",
+    marginLeft: "40vh",
     flexDirection: "column",
     gap: 30,
-    padding: theme.spacing.xl,
+    height: "100%",
+    padding: 50,
+    paddingTop: "7%",
   },
 }));
 

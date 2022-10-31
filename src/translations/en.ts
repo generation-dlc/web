@@ -1,28 +1,9 @@
 export default {
   common: {
-    yes: "Ok",
-    no: "No",
-    send: "Send",
-    goBack: "Go Back",
+    placeAnAd: "Place an ad",
     signIn: "Sign In",
     signUp: "Sign Up",
-    signOut: "Sign Out",
-    cancel: "Annuler",
-    loading: "Chargement",
-    EXTERNAL: "Externe",
-    INTERNAL: "Interne",
-    ADMIN: "Admin",
-    caution: "Attention !",
-    add: "Ajouter",
-    update: "Mettre à jour",
-    select: "Sélectionner",
-    disable: "Désactiver",
-    enable: "Activer",
-    disabled: "Désactivé",
-    enabled: "Activé",
-    error: {
-      anErrorOccurredPleaseRetryLater: "Une erreur est survenue réessaie plus tard"
-    }
+    signOut: "Sign Out"
   },
   signIn: {
     welcome: "Bienvenue",
@@ -53,40 +34,6 @@ export default {
     cancel: "Annuler",
     forgotPassword: "Mot de passe oublié ?"
   },
-  admin: {
-    craManagement: "Gestion des CRA",
-    validation: "Validation",
-    submission: "Soumission",
-    general: "Général",
-    management: "Gestion",
-    customers: "Clients",
-    users: "Utilisateurs",
-    invoicing: "Facturation",
-    toggleColorScheme: "Changer le thème",
-    confirmEnableMaintenanceMode: "Êtes-vous sûr(e) de vouloir activer le mode maintenance ?",
-    confirmDisableMaintenanceMode: "Êtes-vous sûr(e) de vouloir désactiver le mode maintenance ?",
-    enableMaintenanceDescription: "Ceci retirera l'accès à Crakotte pour tous les utilisateurs",
-    disableMaintenanceDescription: "Ceci rétablira l'accès à Crakotte pour tous les utilisateurs",
-    maintenanceMode: "Mode maintenance",
-  },
-  customers: {
-    customers: "Clients",
-    addACustomer: "Ajouter un client",
-    editCustomer: "Modifier le client {{customer}}",
-    name: "Nom",
-    logo: "Logo",
-    contactEmail: "Email de contact",
-    imageLimit: "L'image ne doit pas dépasser 5 Mo",
-    projects: "Projets",
-    addProject: "Ajouter le projet \"{{name}}\"",
-    typeToAddProject: "Écrivez pour ajouter un project",
-    enterToAdd: "Tappez sur la toucher Enter pour ajouter",
-    noCustomersFound: "Aucun client trouvé",
-    noEmail: "Aucun email",
-    modalConfirmDeleteTitle: "Êtes-vous sûr(e) de vouloir supprimer le client '{{clientName}}' ? Cette action est irréversible.",
-    customerDeletion: "Suppression d'un client",
-    cantDeleteCustomer: "Impossible de supprimer le client"
-  },
   user: {
     search: {
       filters: "Filters",
@@ -102,6 +49,21 @@ export default {
       track: "Track transactions",
       history: "History",
       settings: "Settings",
+    },
+    ad: {
+      buyWith: "Buy with",
+      safeDeal: "Safe deal",
+      learnMore: "Learn more",
+      delivery: "Delivery available",
+      howItWorks: "How does it work?",
+      handDelivery: "Hand delivery available",
+      cardPaiement: "Credit card paiement alternative",
+      sendMessageToSeller: "Send message to the seller",
+      reportAd: "Report ad",
+      rightAndObligations: "Your rights and obligations"
+    },
+    message: {
+      warningMessage: "DO NEVER, UNDER ANY CIRCUMSTANCES, SHARE YOUR PRIVATE KEY OR SEED PHRASE!"
     }
   },
   maintenance: {

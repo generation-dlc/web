@@ -17,6 +17,8 @@ import { Roles } from "./types";
 import { useConfigService } from "./services/config";
 import { useConfig, useRemoveConfig, useSaveConfig } from "./store/reducers/config-reducer";
 import AppLayout from "./components/layouts/AppLayout";
+import Classified from "./components/core/Classified";
+import Messages from "./components/core/Messages"
 
 i18n
   .use(LanguageDetector)
@@ -89,7 +91,8 @@ function App() {
             : <Route element={<AppLayout />}>
               <Route index element={<Navigate to="/search" replace />} />
               <Route path="/search" element={<Search />} />
-              <Route path="product/:id" element={<>description</>} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="classified-ad/:id" element={<Classified />} />
               <Route path="*" element={<>Error 404</>} />
             </Route>
       }

@@ -40,7 +40,7 @@ function AdminLayout() {
   return <AppShell
     padding="md"
     navbar={
-      <Navbar width={{ base: 250 }} className={classes.navbar}>
+      <Navbar width={{ base: "40vh" }} className={classes.navbar}>
         <Navbar.Section sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
           <Text color="grey" size="xs" weight="bold" sx={{ textTransform: "uppercase" }}>{t("admin.craManagement")}</Text>
           <TabButton value="/admin/validation" icon={<HiCheckCircle size={23} />} >{t("admin.validation")}</TabButton>
