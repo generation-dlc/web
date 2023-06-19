@@ -24,15 +24,34 @@ export default {
     }
   },
   signIn: {
+    signYou: "Connectez-vous !",
+    signIn: "Se connecter",
+    signInExplanation: "Entrez votre identifiant et mot de passe",
     welcome: "Bienvenue",
     continueWithMicrosoft: "Continuer avec Microsoft",
-    signIn: "Bienvenue !",
     continue: "Continuer",
     email: "Email",
     emailPlaceholder: "email@address.com",
     password: "Mot de passe",
     forgotPassword: "Mot de passe oublié ?",
     or: "ou"
+  },
+  changeTemporaryPassword: {
+    changeTemporaryPassword: "Changement du mot de passe temporaire",
+    oldPassword: "Ancien mot de passe",
+    newPassword: "Nouveau mot de passe",
+    confirmPassword: "Confirmation du mot de passe",
+    submit: "Valider",
+    bitwardenSuggestion: "Pour garantir un bon niveau de sécurité, nous vous invitons à utiliser un gestionnaire de mots de passe tel que <linkText>Bitwarden</linkText>",
+  },
+  forgotPassword: {
+    forgotPassword: "Mot de passe oublié ?",
+    forgotPasswordExplanation: "Entrez votre email pour reçevoir un lien de rénitialisation",
+    emailLabel: "Email",
+    email: "Email",
+    emailPlaceholder: "email@address.com",
+    submit: "Valider",
+    cancel: "Annuler"
   },
   home: {
     welcomeMessage: "Ravis de te revoir",
@@ -135,22 +154,6 @@ export default {
     lastName: "Nom",
     firstNamePlaceholder: "Auguste",
     lastNamePlaceholder: "Manou",
-  },
-  changeTemporaryPassword: {
-    changeTemporaryPassword: "Changement du mot de passe temporaire",
-    oldPassword: "Ancien mot de passe",
-    newPassword: "Nouveau mot de passe",
-    confirmPassword: "Confirmation du mot de passe",
-    submit: "Valider",
-    bitwardenSuggestion: "Pour garantir un bon niveau de sécurité, nous vous invitons à utiliser un gestionnaire de mots de passe tel que <linkText>Bitwarden</linkText>",
-  },
-  forgotPassword: {
-    emailLabel: "Email",
-    email: "Email",
-    emailPlaceholder: "email@address.com",
-    submit: "Valider",
-    cancel: "Annuler",
-    forgotPassword: "Mot de passe oublié ?"
   },
   validation: {
     name: "Nom",

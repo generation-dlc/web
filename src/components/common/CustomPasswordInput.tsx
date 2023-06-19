@@ -39,7 +39,7 @@ function getStrength(password: string) {
   return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 10);
 }
 
-export default function CrakottePasswordInput({ withRules, ...props }: PasswordInputProps & { withRules?: boolean }) {
+export default function CustomPasswordInput({ withRules, ...props }: PasswordInputProps & { withRules?: boolean }) {
   const theme = useMantineTheme();
   const { t } = useTranslation();
 

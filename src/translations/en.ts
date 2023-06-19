@@ -13,7 +13,8 @@ export default {
     emailPlaceholder: "email@address.com",
     password: "Mot de passe",
     forgotPassword: "Mot de passe oublié ?",
-    or: "ou"
+    or: "ou",
+    signIn: "Bienvenue !"
   },
   home: {
     welcomeMessage: "Hello",

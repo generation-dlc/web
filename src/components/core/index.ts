@@ -1,4 +1,10 @@
-export { default as Search } from "./Search";
+export { default as Generations } from "./Generations";
 export { default as AskEmail } from "./AskEmail";
 export { default as ResetPassword } from "./ResetPassword";
 export { default as Maintenance } from "./Maintenance";
+export { default as Users } from "./Users";
+export { default as Inbox } from "./Inbox";
+export { default as Transactions } from "./Transactions";
+export { default as Gifts } from "./Gifts";
+export { default as Events } from "./Events";
+export { default as Settings } from "./Settings";

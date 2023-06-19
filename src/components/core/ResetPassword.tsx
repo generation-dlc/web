@@ -9,7 +9,7 @@ import { BsFillCheckCircleFill } from "react-icons/bs";
 import { useAuthService } from "../../services";
 import { useSearchParams } from "react-router-dom";
 import { useSaveToken } from "../../store/reducers/auth-reducer";
-import { CrakottePasswordInput } from "../common";
+import { CustomPasswordInput } from "../common";
 
 type FormData = ChangePasswordPayload & {
   confirmPassword: string;
@@ -74,7 +74,7 @@ const ResetPassword = () => {
           <Title order={6} className={classes.label}>
             {t("changeTemporaryPassword.newPassword")}
           </Title>
-          <CrakottePasswordInput
+          <CustomPasswordInput
             id="newPassword"
             name="newPassword"
             aria-label={t("changeTemporaryPassword.newPassword")}
@@ -91,7 +91,7 @@ const ResetPassword = () => {
           <Title order={6} className={classes.label}>
             {t("changeTemporaryPassword.confirmPassword")}
           </Title>
-          <CrakottePasswordInput
+          <CustomPasswordInput
             id="confirmPassword"
             name="confirmPassword"
             aria-label={t("changeTemporaryPassword.confirmPassword")}

@@ -6,41 +6,29 @@ import { object, string } from "yup";
 import { SignInPayload, useAuthService } from "../../services/authentication";
 import { useSaveToken } from "../../store/reducers/auth-reducer";
 import { Link } from "react-router-dom";
-import { createStyles, Paper, Title, Alert, TextInput, Button, Divider } from "@mantine/core";
+import { createStyles, Paper, Title, Alert, TextInput, Button, Divider, Center, Stack, Text } from "@mantine/core";
 import { HiMail } from "react-icons/hi";
-import { BsMicrosoft } from "react-icons/bs";
 import { CgDanger } from "react-icons/cg";
-import { DisableableAnchor, CrakottePasswordInput } from "../common";
+import { DisableableAnchor, CustomPasswordInput } from "../common";
 import { persistor } from "../../store";
+import { useSaveProfile } from "../../store/reducers/user-reducer";
 
 const SignIn = () => {
   const { t } = useTranslation();
   const { classes } = useStyles();
-  const authService = useAuthService();
+  const { signIn } = useAuthService();
   const saveToken = useSaveToken();
+  const saveProfile = useSaveProfile();
 
   const [loading, setLoading] = useState(false);
   const [azureLoading, setAzureLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>();
-
-  // azure code
-  const [searchParams, setSearchParams] = useSearchParams();
-  const azureToken = searchParams.get("token");
 
   useEffect(() => {
     persistor.persist();
     setAzureLoading(false);
     setLoading(false);
   }, []);
-
-  useEffect(() => {
-    if (azureToken) {
-      setLoading(true);
-      saveToken({ token: azureToken });
-      searchParams.delete("token");
-      setSearchParams(searchParams);
-    }
-  }, [azureToken]);
 
   const formik = useFormik<SignInPayload>({
     initialValues: {
@@ -51,11 +39,11 @@ const SignIn = () => {
       email: string().email(t("form.error.invalidEmail")).required(t("form.error.required")),
       password: string().required(t("form.error.required")),
     }),
-    onSubmit: signInWithCrakotte,
+    onSubmit,
   });
 
-  function signInWithCrakotte(signInPayload: SignInPayload, actions: FormikHelpers<SignInPayload>) {
-    authService.signIn(
+  function onSubmit(signInPayload: SignInPayload, actions: FormikHelpers<SignInPayload>) {
+    signIn(
       {
         loading: value => setLoading(value),
         error: error => setErrorMessage(error?.status === 401 ? error?.message : t("common.error.anErrorOccurredPleaseRetryLater")),
@@ -68,27 +56,22 @@ const SignIn = () => {
     );
   }
 
-  function signInWithAzure() {
-    setAzureLoading(true);
-    authService.signInWithAzure(
-      {
-        loading: value => null,
-        error: error => { setAzureLoading(false); setErrorMessage(error?.message) },
-        success: res => { window.open(res, "_self") },
-      }
-    );
-  }
-
   return (
     <>
+      <Center mb={10}>
+        <Stack align={"center"} style={{ gap: 5 }}>
+          <Title order={1}>{t("signIn.signYou")}</Title>
+          <Text size="xs" weight={500}>{t("signIn.signInExplanation")}</Text>
+        </Stack>
+      </Center>
+
       <Paper
-        p="md"
-        shadow="md"
+        p="xl"
+        shadow="xl"
         className={classes.formContainer}
         component="form"
         onSubmit={formik.handleSubmit}
         noValidate>
-        <Title order={2}>{t("signIn.signIn")}</Title>
         <div>
           <Title order={6} className={classes.label}>
             {t("signIn.email")}
@@ -111,7 +94,7 @@ const SignIn = () => {
           <Title order={6} className={classes.label}>
             {t("signIn.password")}
           </Title>
-          <CrakottePasswordInput
+          <CustomPasswordInput
             id="password"
             aria-label={t("signIn.password")}
             aria-required="true"
@@ -133,37 +116,22 @@ const SignIn = () => {
           loading={loading}
           disabled={azureLoading}
         >
-          {t("signIn.continue")}
-        </Button>
-
-        <Divider
-          my="xs"
-          label={t("signIn.or")}
-          labelPosition="center"
-          styles={{ label: { color: "gray" } }}
-          sx={{ fontWeight: 600, margin: "0 !important" }}
-        />
-
-        <Button
-          className="bg-white"
-          onClick={signInWithAzure}
-          loading={azureLoading}
-          disabled={loading}
-          leftIcon={<BsMicrosoft width={18} height={18} />}
-        >
-          {t("signIn.continueWithMicrosoft")}
+          {t("signIn.signIn")}
         </Button>
       </Paper>
-      {errorMessage && (
-        <Alert
-          icon={<CgDanger />}
-          sx={theme => ({ boxShadow: theme.shadows.md, position: "relative" })}
-          color="red"
-          radius="lg"
-          variant="filled">
-          {errorMessage}
-        </Alert>
-      )}
+
+      {
+        errorMessage && (
+          <Alert
+            icon={<CgDanger />}
+            sx={theme => ({ boxShadow: theme.shadows.md, position: "relative" })}
+            color="red"
+            radius="sm"
+            variant="filled">
+            {errorMessage}
+          </Alert>
+        )
+      }
     </>
   );
 };
@@ -172,12 +140,15 @@ const useStyles = createStyles(theme => ({
   formContainer: {
     display: "flex",
     flexDirection: "column",
-    borderRadius: theme.radius.lg,
+    width: "100%",
+    borderRadius: theme.radius.md,
     backdropFilter: "blur(2px)",
-    backgroundColor: theme.colorScheme === "dark" ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)",
-    padding: theme.spacing.xl,
+    backgroundColor: "white",
     gap: theme.spacing.md,
     position: "relative",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "#EAECEF"
   },
 
   label: {

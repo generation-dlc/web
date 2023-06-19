@@ -3,7 +3,7 @@ import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
 import { RequestPasswordPayload, useAuthService } from "../../services/authentication";
 import { object, string } from "yup";
-import { createStyles, Paper, Button, TextInput, Title, Alert, SimpleGrid } from "@mantine/core";
+import { createStyles, Paper, Button, TextInput, Title, Alert, SimpleGrid, Center, Stack, Text } from "@mantine/core";
 import { CgDanger } from "react-icons/cg";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
@@ -44,6 +44,13 @@ const AskEmail = () => {
 
   return (
     <>
+      <Center mb={10}>
+        <Stack align={"center"} style={{ gap: 5 }}>
+          <Title order={1}>{t("forgotPassword.forgotPassword")}</Title>
+          <Text size="xs" weight={500}>{t("forgotPassword.forgotPasswordExplanation")}</Text>
+        </Stack>
+      </Center>
+
       <Paper
         p="md"
         shadow="md"
@@ -51,7 +58,6 @@ const AskEmail = () => {
         component="form"
         onSubmit={formik.handleSubmit}
         noValidate>
-        <Title order={4}>{t("forgotPassword.forgotPassword")}</Title>
         <div>
           <Title order={6} className={classes.label}>
             {t("forgotPassword.emailLabel")}
@@ -77,6 +83,7 @@ const AskEmail = () => {
           </Button>
         </SimpleGrid>
       </Paper>
+
       {(errorMessage || successMessage) && (
         <Alert
           icon={errorMessage ? <CgDanger size={20} /> : <BsFillCheckCircleFill size={20} />}
@@ -95,17 +102,19 @@ const useStyles = createStyles(theme => ({
   formContainer: {
     display: "flex",
     flexDirection: "column",
-    borderRadius: theme.radius.lg,
+    width: "100%",
+    borderRadius: theme.radius.md,
     backdropFilter: "blur(2px)",
-    backgroundColor: theme.colorScheme === "dark" ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)",
-    padding: theme.spacing.xl,
+    backgroundColor: "white",
     gap: theme.spacing.md,
     position: "relative",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "#EAECEF"
   },
 
   label: {
     fontWeight: 600,
-    color: theme.colors.gray[6],
     marginBottom: 5,
   },
 }));

@@ -9,7 +9,7 @@ function CrakotteLoader(props: any) {
   const { t } = useTranslation();
 
   const isDark = useIsDark();
-  const color = useMemo(() => isDark ? theme.colors.crakotte[7] : theme.colors.crakotte[6], [isDark]);
+  const color = useMemo(() => isDark ? theme.colors.generation[7] : theme.colors.generation[6], [isDark]);
 
   return (
     <Stack justify="center" spacing={5} align="center" {...props}>

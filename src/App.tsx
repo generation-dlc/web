@@ -4,21 +4,18 @@ import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { fr, en } from "./translations";
-import { Search, AskEmail, ResetPassword, Maintenance } from "./components/core";
+import { Generations, AskEmail, ResetPassword, Maintenance, Users, Inbox, Transactions, Gifts, Events, Settings } from "./components/core";
 import BaseLayout from "./components/layouts/BaseLayout";
 import SignIn from "./components/authentication/SignIn";
 import { useUserService } from "./services";
 import { useRemoveProfile, useSaveProfile } from "./store/reducers/user-reducer";
-import { useWantsToAuthentificate, useToken } from "./store/reducers/auth-reducer";
+import { useToken } from "./store/reducers/auth-reducer";
 import { useProfile } from "./store/reducers/user-reducer";
 import FormLayout from "./components/layouts/FormLayout";
-import AdminLayout from "./components/layouts/AdminLayout";
 import { Roles } from "./types";
 import { useConfigService } from "./services/config";
 import { useConfig, useRemoveConfig, useSaveConfig } from "./store/reducers/config-reducer";
 import AppLayout from "./components/layouts/AppLayout";
-import Classified from "./components/core/Classified";
-import Messages from "./components/core/Messages"
 
 i18n
   .use(LanguageDetector)
@@ -33,13 +30,7 @@ i18n
   });
 
 // temporary freeze language to french
-i18n.changeLanguage("en");
-
-const authorizedEmails = [
-  "guillaume.louis@reboot-conseil.com",
-  "ahmed@reboot-conseil.com",
-  "yaniv@reboot-conseil.com"
-];
+i18n.changeLanguage("fr");
 
 function App() {
   const { getProfile } = useUserService();
@@ -50,13 +41,17 @@ function App() {
   const removeConfig = useRemoveConfig();
   const token = useToken();
   const profile = useProfile();
-  const wantsToAuthentificate = useWantsToAuthentificate();
   const config = useConfig();
 
   useEffect(() => {
     if (token) {
-      getConfig({ success: res => saveConfig(res) });
-      getProfile({ success: res => saveProfile(res) });
+      // getConfig({ success: res => saveConfig(res) });
+      getProfile({
+        success: res => {
+          console.log(res)
+          saveProfile(res)
+        }
+      });
     } else {
       removeConfig();
       removeProfile();
@@ -67,36 +62,34 @@ function App() {
     <Routes>
       {token && profile.role === Roles.ADMIN
         ? <>
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="/admin/test" element={<>test</>} />
-            <Route index element={<Navigate to="/admin/test" replace />} />
+          <Route element={<AppLayout />}>
+            <Route path="/generations" element={<Generations />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/inbox" element={<Inbox />} />
+            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/gifts" element={<Gifts />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route index element={<Navigate to="/generations" replace />} />
           </Route>
-          <Route path="/sign-in" element={<Navigate to="/admin/test" replace />} />
-          <Route path="*" element={<Navigate to="/admin/test" replace />} />
+          <Route path="/sign-in" element={<Navigate to="/generations" replace />} />
+          <Route path="*" element={<Navigate to="/generations" replace />} />
         </>
         : config.isDisabled
           ? <Route element={<BaseLayout />}>
             <Route index element={<Maintenance />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
-          : wantsToAuthentificate && !token
-            ? <>
-              <Route element={<FormLayout />}>
-                <Route path="/sign-in" element={<SignIn />} />
-                <Route path="/request-password" element={<AskEmail />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-              </Route>
-              <Route path="*" element={<Navigate to="/sign-in" replace />} />
-            </>
-            : <Route element={<AppLayout />}>
-              <Route index element={<Navigate to="/search" replace />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="classified-ad/:id" element={<Classified />} />
-              <Route path="*" element={<>Error 404</>} />
+          : <>
+            <Route element={<FormLayout />}>
+              <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/request-password" element={<AskEmail />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
             </Route>
+            <Route path="*" element={<Navigate to="/sign-in" replace />} />
+          </>
       }
-    </Routes>
+    </Routes >
   )
 }
 

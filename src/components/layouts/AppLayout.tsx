@@ -2,9 +2,9 @@ import { AppShell, createStyles, ScrollArea } from "@mantine/core";
 import "@szhsin/react-menu/dist/core.css";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useClearStore } from "../../store";
-import AppHeader from "../common/AppHeader";
+import Menu from "../core/Menu";
 
-function SearchLayout() {
+export default function AppLayout() {
   const clearStore = useClearStore();
   const navigate = useNavigate();
 
@@ -16,7 +16,6 @@ function SearchLayout() {
   return <AppShell
     padding="md"
     navbar={<></>}
-    header={<AppHeader />}
     styles={(theme) => ({
       root: { height: "100vh", overflow: "hidden" },
       body: { height: "calc(100%)" },
@@ -30,9 +29,8 @@ function SearchLayout() {
         viewport: { "& > div": { height: "100%" } }
       }}
     >
+      <Menu />
       <Outlet />
     </ScrollArea>
   </AppShell>
 }
-
-export default SearchLayout

@@ -47,10 +47,6 @@ export const useEditWantsToAuthentificate = () => {
   return (res: any) => dispatch({ type: AuthActionType.wantsToAuthentificate, payload: res });
 };
 
-export const useWantsToAuthentificate = (): boolean => {
-  return useSelector<RootState, boolean>((state) => state.authReducer.wantsToAuthentificate);
-}
-
 export const useToken = (): string | null => {
   return useSelector<RootState, string | null>((state) => state.authReducer.token);
 }
