@@ -12,7 +12,7 @@ import { useRemoveProfile, useSaveProfile } from "./store/reducers/user-reducer"
 import { useToken } from "./store/reducers/auth-reducer";
 import { useProfile } from "./store/reducers/user-reducer";
 import FormLayout from "./components/layouts/FormLayout";
-import { Roles } from "./types";
+import { UserRoles } from "./types";
 import { useConfigService } from "./services/config";
 import { useConfig, useRemoveConfig, useSaveConfig } from "./store/reducers/config-reducer";
 import AppLayout from "./components/layouts/AppLayout";
@@ -60,7 +60,7 @@ function App() {
 
   return (
     <Routes>
-      {token && profile.role === Roles.ADMIN
+      {token && profile.role === UserRoles.ADMIN
         ? <>
           <Route element={<AppLayout />}>
             <Route path="/generations" element={<Generations />} />

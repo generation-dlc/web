@@ -5,7 +5,7 @@ import { BsThreeDots } from 'react-icons/bs';
 import { FiChevronUp, FiX } from 'react-icons/fi';
 import { useProfile } from "../../store/reducers/user-reducer";
 import { useTranslation } from "react-i18next";
-import { Roles, Transaction, TransactionType } from "../../types";
+import { User, Transaction, TransactionType, UserRoles, UserStatus } from "../../types";
 import format from "date-fns/format";
 import { firstLetterUpperCase } from "../../utils";
 
@@ -26,8 +26,40 @@ export default function Transactions() {
         description: "Entrée",
         points: 20,
         xp: 20,
-        from: { firstName: "Thomas", lastName: "Dupuis", role: Roles.STAFF },
-        to: { firstName: "Laure", lastName: "Vandenberg", role: Roles.USER },
+        from: {
+          _id: "0",
+          username: "gokugen",
+          email: "hadjadjirayane@outlook.fr",
+          firstName: "Mohamed",
+          lastName: "HADJADJI",
+          lastActivity: new Date().toISOString(),
+          inscriptionDate: new Date().toISOString(),
+          role: UserRoles.USER,
+          status: UserStatus.ON,
+          xp: 0,
+          balance: 0,
+          generation: {
+            _id: "0",
+            number: 1
+          }
+        },
+        to: {
+          _id: "0",
+          username: "gokugen",
+          email: "hadjadjirayane@outlook.fr",
+          firstName: "Mohamed",
+          lastName: "HADJADJI",
+          lastActivity: new Date().toISOString(),
+          inscriptionDate: new Date().toISOString(),
+          role: UserRoles.USER,
+          status: UserStatus.ON,
+          xp: 0,
+          balance: 0,
+          generation: {
+            _id: "0",
+            number: 1
+          }
+        },
         actionId: "1"
       },
       {
@@ -36,8 +68,40 @@ export default function Transactions() {
         type: TransactionType.EVENT,
         description: "Ticket - Bling King 11/07/2023",
         points: -120,
-        from: { firstName: "Thomas", lastName: "Dupuis", role: Roles.STAFF },
-        to: { firstName: "Laure", lastName: "Vandenberg", role: Roles.USER },
+        from: {
+          _id: "0",
+          username: "gokugen",
+          email: "hadjadjirayane@outlook.fr",
+          firstName: "Mohamed",
+          lastName: "HADJADJI",
+          lastActivity: new Date().toISOString(),
+          inscriptionDate: new Date().toISOString(),
+          role: UserRoles.USER,
+          status: UserStatus.ON,
+          xp: 0,
+          balance: 0,
+          generation: {
+            _id: "0",
+            number: 1
+          }
+        },
+        to: {
+          _id: "0",
+          username: "gokugen",
+          email: "hadjadjirayane@outlook.fr",
+          firstName: "Mohamed",
+          lastName: "HADJADJI",
+          lastActivity: new Date().toISOString(),
+          inscriptionDate: new Date().toISOString(),
+          role: UserRoles.USER,
+          status: UserStatus.ON,
+          xp: 0,
+          balance: 0,
+          generation: {
+            _id: "0",
+            number: 1
+          }
+        },
         eventId: "0"
       },
       {
@@ -46,7 +110,23 @@ export default function Transactions() {
         type: TransactionType.PRODUCT,
         description: "Bon d'achat Paint Quotidientcdskjncdsjknxs",
         points: -90,
-        to: { firstName: "Laure", lastName: "Vandenberg", role: Roles.USER },
+        to: {
+          _id: "0",
+          username: "gokugen",
+          email: "hadjadjirayane@outlook.fr",
+          firstName: "Mohamed",
+          lastName: "HADJADJI",
+          lastActivity: new Date().toISOString(),
+          inscriptionDate: new Date().toISOString(),
+          role: UserRoles.USER,
+          status: UserStatus.ON,
+          xp: 0,
+          balance: 0,
+          generation: {
+            _id: "0",
+            number: 1
+          }
+        },
         productId: "0"
       },
     ])
@@ -75,14 +155,14 @@ export default function Transactions() {
       <td>{transaction?.from?.firstName
         ? <Stack style={{ gap: 0 }}>
           <Text style={{ color: "black" }}>{transaction.from.firstName + " " + transaction.from.lastName}</Text>
-          <Text>{transaction.from.role === Roles.USER ? "Client" : firstLetterUpperCase(transaction.from.role)}</Text>
+          <Text>{transaction.from.role === UserRoles.USER ? "Client" : firstLetterUpperCase(transaction.from.role)}</Text>
         </Stack>
         : "-"
       }</td>
       <td>
         <Stack style={{ gap: 0 }}>
           <Text style={{ color: "black" }}>{transaction.to.firstName + " " + transaction.to.lastName}</Text>
-          <Text>{transaction.to.role === Roles.USER ? "Client" : firstLetterUpperCase(transaction.to.role)}</Text>
+          <Text>{transaction.to.role === UserRoles.USER ? "Client" : firstLetterUpperCase(transaction.to.role)}</Text>
         </Stack>
       </td>
       {<Group style={{ position: "absolute", right: 10, top: 15, gap: 0 }}>

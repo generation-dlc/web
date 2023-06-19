@@ -5,7 +5,7 @@ import { BsPencil, BsThreeDots } from 'react-icons/bs';
 import { useProfile } from "../../store/reducers/user-reducer";
 import { useTranslation } from "react-i18next";
 import { DateRangePicker } from '@mantine/dates';
-import { Gift, GiftStatus, GiftType, Roles, Status, Transaction, TransactionType } from "../../types";
+import { Gift, GiftStatus, GiftType, UserRoles, Transaction, TransactionType } from "../../types";
 import format from "date-fns/format";
 import { firstLetterUpperCase } from "../../utils";
 import { FiX } from "react-icons/fi";
@@ -24,8 +24,8 @@ export default function Gifts() {
       description: "Entrée",
       point: 20,
       xp: 20,
-      from: { _id: "0", firstName: "Thomas", lastName: "Dupuis", role: Roles.STAFF },
-      to: { _id: "1", firstName: "Laure", lastName: "Vandenberg", role: Roles.USER },
+      from: { _id: "0", firstName: "Thomas", lastName: "Dupuis", role: UserRoles.STAFF },
+      to: { _id: "1", firstName: "Laure", lastName: "Vandenberg", role: UserRoles.USER },
       actionId: "0"
     },
     {
@@ -34,8 +34,8 @@ export default function Gifts() {
       type: TransactionType.EVENT,
       description: "Ticket - Bling King 11/07/2023",
       point: -120,
-      from: { _id: "0", firstName: "Thomas", lastName: "Dupuis", role: Roles.STAFF },
-      to: { _id: "1", firstName: "Laure", lastName: "Vandenberg", role: Roles.USER },
+      from: { _id: "0", firstName: "Thomas", lastName: "Dupuis", role: UserRoles.STAFF },
+      to: { _id: "1", firstName: "Laure", lastName: "Vandenberg", role: UserRoles.USER },
       eventId: "0"
     },
     {
@@ -44,7 +44,7 @@ export default function Gifts() {
       type: TransactionType.PRODUCT,
       description: "Bon d'achat Paint Quotidientcdskjncdsjknxs",
       point: -90,
-      to: { _id: "1", firstName: "Laure", lastName: "Vandenberg", role: Roles.USER },
+      to: { _id: "1", firstName: "Laure", lastName: "Vandenberg", role: UserRoles.USER },
       productId: "0"
     }
   ])
@@ -144,7 +144,7 @@ export default function Gifts() {
           <td>
             <Stack style={{ gap: 0 }}>
               <Text style={{ color: "black" }}>{transaction.to.firstName + " " + transaction.to.lastName}</Text>
-              <Text>{transaction.to.role === Roles.USER ? "Client" : firstLetterUpperCase(transaction.to.role)}</Text>
+              <Text>{transaction.to.role === UserRoles.USER ? "Client" : firstLetterUpperCase(transaction.to.role)}</Text>
             </Stack>
           </td>
           {<Group style={{ position: "absolute", right: 10, top: 15, gap: 0 }}>

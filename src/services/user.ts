@@ -1,6 +1,6 @@
 import { HttpMutators } from "./http-mutators";
 import { useHttp } from "./http";
-import { Roles } from "../types";
+import { UserRoles } from "../types";
 
 export type ChangePasswordPayload = {
   newPassword: string;
@@ -9,7 +9,7 @@ export type ChangePasswordPayload = {
 export type AddUserPayload = {
   firstName: string,
   lastName: string,
-  role: Roles,
+  role: UserRoles,
   email: string,
 }
 

@@ -17,8 +17,8 @@ export type User = {
   zip?: number;
   lastActivity: string;
   inscriptionDate: string;
-  role: Roles;
-  status: Status;
+  role: UserRoles;
+  status: UserStatus;
   email: string;
   xp: number;
   balance: number;
@@ -27,13 +27,13 @@ export type User = {
   level?: number;
 }
 
-export enum Roles {
+export enum UserRoles {
   ADMIN = "ADMIN",
   STAFF = "STAFF",
   USER = "USER"
 }
 
-export enum Status {
+export enum UserStatus {
   ON = "ON",
   OFF = "OFF",
   BAN = "BAN"
@@ -46,8 +46,8 @@ export type Transaction = {
   description: string;
   points: number;
   xp?: number;
-  from?: { firstName: string, lastName: string, role: Roles };
-  to: { firstName: string, lastName: string, role: Roles };
+  from?: User;
+  to: User;
   actionId?: string;
   productId?: string;
   eventId?: string;

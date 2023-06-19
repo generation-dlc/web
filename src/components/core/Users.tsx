@@ -6,7 +6,7 @@ import { FiSend, FiCheck, FiX, FiInfo } from 'react-icons/fi';
 import { useProfile } from "../../store/reducers/user-reducer";
 import { useTranslation } from "react-i18next";
 import differenceInDays from 'date-fns/differenceInDays'
-import { Roles, Status, User } from "../../types";
+import { UserRoles, UserStatus, User } from "../../types";
 import { firstLetterUpperCase } from "../../utils";
 import { format } from "date-fns";
 import { useUserService } from "../../services";
@@ -36,7 +36,7 @@ export default function Users() {
           <Avatar color="gray" radius="xl">{user.firstName[0] + user.lastName[0]}</Avatar>
           <Stack style={{ gap: 0 }}>
             {user.firstName + " " + user.lastName}
-            <Text>{user.role === Roles.USER ? "Client" : firstLetterUpperCase(user.role)}</Text>
+            <Text>{user.role === UserRoles.USER ? "Client" : firstLetterUpperCase(user.role)}</Text>
           </Stack>
         </Group>
       </td>
@@ -46,8 +46,8 @@ export default function Users() {
       <td>{user.balance} pts</td>
       <td>{user.generation?.number ? "#" + user.generation?.number : ""}</td>
       <td>
-        <Badge color={user.status === Status.ON ? "blue" : "red"}>
-          {user.status === Status.ON ? "actif" : "désactivé"}
+        <Badge color={user.status === UserStatus.ON ? "blue" : "red"}>
+          {user.status === UserStatus.ON ? "actif" : "désactivé"}
         </Badge>
       </td>
       {<Group style={{ position: "absolute", right: 10, top: 15, gap: 0 }}>
@@ -91,7 +91,7 @@ export default function Users() {
         <Select
           placeholder="Type d'utlisateur"
           data={[
-            { value: 'react', label: 'React' },
+            { value: UserRoles.STAFF, label: UserRoles.STAFF },
             { value: 'ng', label: 'Angular' },
             { value: 'svelte', label: 'Svelte' },
             { value: 'vue', label: 'Vue' },
