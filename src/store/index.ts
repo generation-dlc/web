@@ -21,8 +21,6 @@ export function useClearStore() {
   const removeUser = useRemoveProfile();
 
   return async () => {
-    await persistor.purge();
-    await persistor.pause();
     removeToken();
     removeUser();
   }
