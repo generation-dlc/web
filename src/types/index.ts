@@ -59,28 +59,22 @@ export enum TransactionType {
   PRODUCT = "PRODUCT",
 }
 
-export type Gift = {
+export type Product = {
   _id: string;
-  type: GiftType;
   title: string;
   sponsor: string,
-  price: number;
+  points: number;
   xp?: number;
   start: string;
   end: string;
   used: number;
   stock: number;
-  status: GiftStatus,
+  status: ProductStatus,
   imageUrl: string,
   description?: string
 }
 
-export enum GiftType {
-  GOODBUY = "GOODBUY",
-  OFFER = "OFFER"
-}
-
-export enum GiftStatus {
+export enum ProductStatus {
   ON = "ON",
   DRAFT = "DRAFT"
 }

@@ -5,6 +5,6 @@ export { default as Maintenance } from "./Maintenance";
 export { default as Users } from "./Users";
 export { default as Inbox } from "./Inbox";
 export { default as Transactions } from "./Transactions";
-export { default as Gifts } from "./Gifts";
+export { default as Products } from "./Products";
 export { default as Events } from "./Events";
 export { default as Settings } from "./Settings";

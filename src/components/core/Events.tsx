@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { createStyles, Group, Stack, Text, Pagination, ActionIcon, Title, Select, TextInput, Box, Paper, Table, Badge, Avatar, Image, Grid, Modal, Tabs, Textarea, Button } from "@mantine/core";
-import { useProfile } from "../../store/reducers/user-reducer";
 import { useTranslation } from "react-i18next";
 import { DateRangePicker } from "@mantine/dates";
 import { Event, EventStatus } from "../../types";
@@ -9,88 +8,32 @@ import { format, getMonth, getYear } from "date-fns";
 import { fr } from "date-fns/locale";
 import { getMonthName } from "../../utils";
 import { FiChevronDown, FiX } from 'react-icons/fi';
+import { useEventService } from "../../services";
 
 export default function Events() {
   const { t } = useTranslation();
   const { classes } = useStyles();
-  const profile = useProfile();
+  const { getEvents, addEvent, editEvent } = useEventService();
 
   const inputFile: any = useRef()
 
   const [events, setEvents] = useState<any[]>([])
   const [selectedRangeDate, setSelectedRangeDate] = useState<any>([])
+  const [when, setWhen] = useState<any>([])
   const [showEventModal, setShowEventModal] = useState<boolean>(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | any>()
   const [selectedEventParticipantsRows, setSelectedEventParticipantsRows] = useState([])
 
   useEffect(() => {
-    const eventsFromApi = [
-      {
-        _id: "0",
-        date: new Date("2023-05-22").toISOString(),
-        title: "Bling King",
-        place: "Dr. Jack",
-        imageUrl: "https://uploads.lebonbon.fr/source/2019/november/45kzycbkrp_2_1200.jpg",
-        points: 100,
-        price: 15,
-        participants: [
-          { userId: "0", firstName: "Alexandre", lastName: "Valerion", username: "alex" },
-          { userId: "1", firstName: "Alexandre", lastName: "Valerion", username: "alex" }
-        ],
-        status: EventStatus.PUBLISHED,
-        description: "Petite description"
-      },
-      {
-        _id: "1",
-        date: new Date("2023-05-26").toISOString(),
-        title: "Bling King",
-        place: "Dr. Jack",
-        imageUrl: "https://uploads.lebonbon.fr/source/2019/november/45kzycbkrp_2_1200.jpg",
-        points: 100,
-        price: 15,
-        participants: [
-          { userId: "0", firstName: "Alexandre", lastName: "Valerion", username: "alex" },
-          { userId: "1", firstName: "Alexandre", lastName: "Valerion", username: "alex" }
-        ],
-        status: EventStatus.PUBLISHED
-      },
-      {
-        _id: "2",
-        date: new Date("2023-06-19").toISOString(),
-        title: "Bling King",
-        place: "Dr. Jack",
-        imageUrl: "https://uploads.lebonbon.fr/source/2019/november/45kzycbkrp_2_1200.jpg",
-        points: 100,
-        price: 15,
-        participants: [
-          { userId: "0", firstName: "Alexandre", lastName: "Valerion", username: "alex" },
-          { userId: "1", firstName: "Alexandre", lastName: "Valerion", username: "alex" }
-        ],
-        status: EventStatus.DRAFT
-      },
-    ]
-
-    // group by months
-    const groupByMonth: any = []
-    let i: number = 0
-    eventsFromApi.forEach((event, index) =>
-      index < eventsFromApi.length - 1
-        ? isSameMonth(new Date(event.date), new Date(eventsFromApi[index + 1].date))
-          ? (() => {
-            groupByMonth[i] = []
-            groupByMonth[i].push(event)
-            groupByMonth[i].push(eventsFromApi[index + 1])
-          })()
-          : (() => {
-            i++
-            groupByMonth[i] = []
-            groupByMonth[i].push(eventsFromApi[index + 1])
-          })()
-        : {}
-    )
-
-    setEvents(groupByMonth)
-  }, [])
+    getEvents({
+      error: console.error,
+      success: (res) => setEvents(groupByMonth(res))
+    }, {
+      when,
+      ...(selectedRangeDate.filter((date: any) => date).length === 2 &&
+        { periode: true, start: selectedRangeDate[0], end: selectedRangeDate[1] })
+    })
+  }, [when, selectedRangeDate])
 
   useEffect(() => {
     setSelectedEventParticipantsRows(selectedEvent?.participants?.map((user: { firstName: string, lastName: string, username: string }, index: number) => (
@@ -100,6 +43,25 @@ export default function Events() {
       </tr>
     )))
   }, [selectedEvent])
+
+  function groupByMonth(res: any) {
+    res.sort((a: any, b: any) => a.date > b.date ? 1 : -1)
+
+    // group by months
+    const groupByMonth: any = []
+    let i: number = 0
+
+    res.forEach((event: Event, index: number) => {
+      if (!groupByMonth[i])
+        groupByMonth[i] = []
+      groupByMonth[i].push(event)
+
+      if (!isSameMonth(new Date(event.date), new Date(res[index + 1]?.date)))
+        i++
+    })
+
+    return groupByMonth
+  }
 
   return <div className={classes.rootContainer}>
     {/* title */}
@@ -111,9 +73,10 @@ export default function Events() {
         <Select
           defaultValue={"after"}
           data={[
-            { value: 'after', label: 'A venir' },
-            { value: 'before', label: 'Passés' },
+            { value: "after", label: "A venir" },
+            { value: "before", label: "Passés" },
           ]}
+          onChange={(value) => setWhen(value as string)}
         />
 
         <DateRangePicker
@@ -177,7 +140,7 @@ export default function Events() {
             <Grid.Col span={"auto"} style={{ display: "flex", alignItems: "center" }}>
               <Group position="apart" style={{ width: "100%" }} pr="xl">
                 <Stack ml="xl" spacing="xs">
-                  <Title order={2} style={{ color: "grey" }}>{format(new Date(event.date), "EEEE dd MMMM yyyy", { locale: fr })}</Title>
+                  {/* <Title order={2} style={{ color: "grey" }}>{format(new Date(event.date), "EEEE dd MMMM yyyy", { locale: fr })}</Title> */}
                   <Title order={2}>{event.title}</Title>
                   <Title order={5}>{event.place}</Title>
                   <Title order={5} style={{ color: "grey" }}>{event.participants.length} participants</Title>
@@ -207,7 +170,11 @@ export default function Events() {
                   onChange={(value) => {
                     // @ts-ignore
                     event.status = value;
-                    setEvents([...events])
+
+                    editEvent({
+                      error: console.error,
+                      success: () => setEvents([...events])
+                    }, event._id, event)
                   }}
                 />
               </Group>
@@ -258,6 +225,9 @@ export default function Events() {
                     event.stopPropagation()
                     event.preventDefault()
 
+                    // @ts-ignore
+                    selectedEvent.file = event.target.files[0]
+
                     var reader = new FileReader();
                     reader.onload = function (event) {
                       // @ts-ignore
@@ -269,13 +239,17 @@ export default function Events() {
                     reader.readAsDataURL(event.target.files[0])
                   }}
                 />
-                <img
-                  src={selectedEvent?.imageUrl}
-                  alt={selectedEvent?.imageUrl}
-                  style={{ width: "100%", borderRadius: 10, cursor: "pointer" }}
+                <div
+                  style={{ display: "flex", alignItems: "center", borderRadius: 10, width: "100%", height: "100%", backgroundColor: selectedEvent?._id ? "" : "#C3CAD1", cursor: "pointer" }}
                   onClick={() => inputFile.current?.click()}
                   role="presentation"
-                />
+                >
+                  <img
+                    src={selectedEvent?.imageUrl}
+                    alt={selectedEvent?.imageUrl}
+                    style={{ width: "100%", borderRadius: 10 }}
+                  />
+                </div>
               </Grid.Col>
 
               <Grid.Col span={"auto"}>
@@ -377,8 +351,44 @@ export default function Events() {
           </Text>
           <Button
             onClick={() => {
-              // TO DO: call API
-              setShowEventModal(false)
+              const formData = new FormData()
+
+              for (const key in selectedEvent)
+                // @ts-ignore
+                formData.append(key, selectedEvent[key])
+
+              if (selectedEvent._id)
+                editEvent({
+                  error: console.error,
+                  success: (res) => {
+                    for (let i = 0; i < events.length; i++) {
+                      for (let x = 0; x < events[i].length; x++) {
+                        if (events[i][x]._id === res._id) {
+                          events[i][x] = res
+                          setEvents([...events])
+                          setShowEventModal(false)
+                          break
+                        }
+                      }
+                    }
+                  }
+                }, selectedEvent._id, selectedEvent)
+              else
+                addEvent({
+                  error: console.error,
+                  success: (res) => {
+                    const tmpLs = []
+                    for (let i = 0; i < events.length; i++) {
+                      for (let x = 0; x < events[i].length; x++) {
+                        tmpLs.push(events[i][x])
+                      }
+                    }
+                    tmpLs.push(res)
+
+                    setEvents(groupByMonth(tmpLs))
+                    setShowEventModal(false)
+                  }
+                }, selectedEvent)
             }}
           >
             Sauvegarder

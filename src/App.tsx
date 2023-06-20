@@ -4,7 +4,7 @@ import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { fr, en } from "./translations";
-import { Generations, AskEmail, ResetPassword, Maintenance, Users, Inbox, Transactions, Gifts, Events, Settings } from "./components/core";
+import { Generations, AskEmail, ResetPassword, Maintenance, Users, Inbox, Transactions, Products, Events, Settings } from "./components/core";
 import BaseLayout from "./components/layouts/BaseLayout";
 import SignIn from "./components/authentication/SignIn";
 import { useUserService } from "./services";
@@ -16,6 +16,7 @@ import { UserRoles } from "./types";
 import { useConfigService } from "./services/config";
 import { useConfig, useRemoveConfig, useSaveConfig } from "./store/reducers/config-reducer";
 import AppLayout from "./components/layouts/AppLayout";
+import { useClearStore } from "./store";
 
 i18n
   .use(LanguageDetector)
@@ -38,7 +39,7 @@ function App() {
   const saveProfile = useSaveProfile();
   const removeProfile = useRemoveProfile();
   const saveConfig = useSaveConfig();
-  const removeConfig = useRemoveConfig();
+  const clearStore = useClearStore();
   const token = useToken();
   const profile = useProfile();
   const config = useConfig();
@@ -48,14 +49,14 @@ function App() {
       // getConfig({ success: res => saveConfig(res) });
       getProfile({
         success: res => {
-          console.log(res)
-          saveProfile(res)
+          if (res.role !== UserRoles.ADMIN)
+            clearStore()
+          else
+            saveProfile(res)
         }
       });
-    } else {
-      removeConfig();
-      removeProfile();
-    }
+    } else
+      removeProfile()
   }, [token]);
 
   return (
@@ -67,7 +68,7 @@ function App() {
             <Route path="/users" element={<Users />} />
             <Route path="/inbox" element={<Inbox />} />
             <Route path="/transactions" element={<Transactions />} />
-            <Route path="/gifts" element={<Gifts />} />
+            <Route path="/products" element={<Products />} />
             <Route path="/events" element={<Events />} />
             <Route path="/settings" element={<Settings />} />
             <Route index element={<Navigate to="/generations" replace />} />

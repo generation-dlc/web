@@ -2,47 +2,32 @@ import { useEffect, useState } from "react";
 import { createStyles, Group, Stack, Text, Pagination, ActionIcon, Title, Select, TextInput, Paper, Table, Badge, Modal, Textarea, Button, Menu, Switch, Divider } from "@mantine/core";
 import { BsPencil, BsThreeDots } from 'react-icons/bs';
 import { FiSend, FiCheck, FiX, FiInfo } from 'react-icons/fi';
-import { useProfile } from "../../store/reducers/user-reducer";
 import { useTranslation } from "react-i18next";
 import { Action, ActionStatus, OperationType } from "../../types";
+import { useActionService, useGenerationsConfigService } from "../../services";
 
 export default function Settings() {
   const { t } = useTranslation();
   const { classes } = useStyles();
-  const profile = useProfile();
+  const { getActions, editAction, addAction } = useActionService();
+  const { getGenerationsConfig, editGenerationsConfig } = useGenerationsConfigService()
 
   const [actions, setActions] = useState<Action[]>([])
-  const [page, setPage] = useState<number>(1)
+  // const [page, setPage] = useState<number>(1)
   const [showEditActionModal, setShowEditActionModal] = useState<boolean>(false)
   const [selectedAction, setSelectedAction] = useState<Action | any>()
   const [generationConfig, setGenerationConfig] = useState<any>([])
 
   useEffect(() => {
-    setActions([
-      {
-        _id: "0",
-        title: "Entrée",
-        operationType: OperationType.ADD,
-        points: 20,
-        xp: 20,
-        status: ActionStatus.ENABLED
-      },
-      {
-        _id: "1",
-        title: "Bouteille",
-        operationType: OperationType.REMOVE,
-        points: 2000,
-        xp: 100,
-        status: ActionStatus.ENABLED
-      },
-    ])
+    getActions({
+      error: console.error,
+      success: (res) => setActions(res)
+    })
 
-    setGenerationConfig([
-      { nbUsers: 10, maxAffiliated: 5, commission: 10 },
-      { maxAffiliated: 2, commission: 7 },
-      { maxAffiliated: 2, commission: 5 },
-      {}
-    ])
+    getGenerationsConfig({
+      error: console.error,
+      success: (res) => setGenerationConfig(res)
+    })
   }, [])
 
   const rows = actions.map((action) => (
@@ -60,7 +45,10 @@ export default function Settings() {
           checked={action.status === ActionStatus.ENABLED}
           onChange={(event) => {
             action.status = event.currentTarget.checked ? ActionStatus.ENABLED : ActionStatus.DISABLED
-            setActions([...actions])
+            editAction({
+              error: console.error,
+              success: (res) => setActions([...actions])
+            }, action._id, action)
           }}
         />
       </td>
@@ -95,50 +83,58 @@ export default function Settings() {
     </tr>
   ));
 
-  const rowsLevels = generationConfig.map((level: any, index: number) =>
+  const rowsLevels = Object.keys(generationConfig).map((level: any, index: number) =>
     <tr key={index} style={{ position: "relative" }}>
       <td><Text>Niveau #{index + 1}</Text></td>
       <td>
-        {level.nbUsers
+        {index === 0
           ? <TextInput
             size="xs"
             id="nbUsers"
-            value={level.nbUsers}
+            value={generationConfig[level].nbUsers}
             onChange={(event) => {
               // @ts-ignore
-              level.nbUsers = event.currentTarget.value
-              setGenerationConfig([...generationConfig])
+              generationConfig[level].nbUsers = event.currentTarget.value
+
+              editGenerationsConfig({
+                error: console.error,
+                success: (res) => setGenerationConfig({ ...generationConfig })
+              }, generationConfig)
             }}
           />
           : "-"}
       </td>
       <td>
-        {level.maxAffiliated
-          ? <TextInput
-            size="xs"
-            id="maxAffiliated"
-            value={level.maxAffiliated}
-            onChange={(event) => {
-              // @ts-ignore
-              level.maxAffiliated = event.currentTarget.value
-              setGenerationConfig([...generationConfig])
-            }}
-          />
-          : "-"}
+        <TextInput
+          size="xs"
+          id="maxAffiliated"
+          value={generationConfig[level].maxAffiliatedUsers}
+          onChange={(event) => {
+            // @ts-ignore
+            generationConfig[level].maxAffiliatedUsers = event.currentTarget.value
+
+            editGenerationsConfig({
+              error: console.error,
+              success: (res) => setGenerationConfig({ ...generationConfig })
+            }, generationConfig)
+          }}
+        />
       </td>
       <td>
-        {level.commission
-          ? <TextInput
-            size="xs"
-            id="commission"
-            value={level.commission + "%"}
-            onChange={(event) => {
-              // @ts-ignore
-              level.commission = event.currentTarget.value
-              setGenerationConfig([...generationConfig])
-            }}
-          />
-          : "-"}
+        <TextInput
+          size="xs"
+          id="commission"
+          value={generationConfig[level].commission + "%"}
+          onChange={(event) => {
+            // @ts-ignore
+            generationConfig[level].commission = event.currentTarget.value
+
+            editGenerationsConfig({
+              error: console.error,
+              success: (res) => setGenerationConfig({ ...generationConfig })
+            }, generationConfig)
+          }}
+        />
       </td>
     </tr>
   )
@@ -154,10 +150,19 @@ export default function Settings() {
       style={{ height: "50%", borderRadius: 10, borderStyle: "solid", borderWidth: 1, borderColor: "#EDF0F2", backgroundColor: "white" }}
     >
       {/* title */}
-      <Stack style={{ gap: 0 }}>
-        <Title order={3}>Actions</Title>
-        <Text>Configurez les différents moyens de gagner et dépenser des points.</Text>
-      </Stack>
+      <Group position="apart">
+        <Stack style={{ gap: 0 }}>
+          <Title order={3}>Actions</Title>
+          <Text>Configurez les différents moyens de gagner et dépenser des points.</Text>
+        </Stack>
+        <Button
+          onClick={() => {
+            setSelectedAction({})
+            setShowEditActionModal(true)
+          }}>
+          Nouveau
+        </Button>
+      </Group>
 
       {/* table */}
       <Table mt={"xl"}>
@@ -165,7 +170,7 @@ export default function Settings() {
           <tr>
             <th>Titre</th>
             <th>Opération</th>
-            <th>{"Prix (points)"}</th>
+            <th>Points</th>
             <th>XP gagnés</th>
             <th>Status</th>
           </tr>
@@ -174,7 +179,7 @@ export default function Settings() {
       </Table>
 
       {/* pagination */}
-      <Group position="center" mt="xl">
+      {/* <Group position="center" mt="xl">
         <Pagination
           size="sm"
           page={page}
@@ -182,7 +187,7 @@ export default function Settings() {
           total={10}
           withControls={false}
         />
-      </Group>
+      </Group> */}
     </Paper>
 
     <Group style={{ height: "50%" }} grow>
@@ -343,9 +348,9 @@ export default function Settings() {
           <TextInput
             required
             id="price"
-            label="Prix"
-            onChange={(event) => setSelectedAction({ ...selectedAction, price: event.currentTarget.value })}
-            value={selectedAction?.price}
+            label="Points"
+            onChange={(event) => setSelectedAction({ ...selectedAction, points: event.currentTarget.value })}
+            value={selectedAction?.points}
           />
 
           <TextInput
@@ -361,7 +366,7 @@ export default function Settings() {
           placeholder="Ecrivez ici..."
           label="Description"
           maxRows={4}
-          onChange={(event) => selectedAction({ ...selectedAction, description: event.currentTarget.value })}
+          onChange={(event) => setSelectedAction({ ...selectedAction, description: event.currentTarget.value })}
           value={selectedAction?.description}
         />
 
@@ -380,7 +385,21 @@ export default function Settings() {
           </Text>
           <Button
             onClick={() => {
-              // TO DO: call API
+              console.log(selectedAction)
+              if (selectedAction._id)
+                editAction({
+                  error: console.error,
+                  success: (res) => {
+                    actions[actions.map(action => action._id).indexOf(res._id)] = res
+                    setActions([...actions])
+                  }
+                }, selectedAction._id, selectedAction)
+              else
+                addAction({
+                  error: console.error,
+                  success: (res) => setActions([...actions, res])
+                }, selectedAction)
+
               setShowEditActionModal(false)
             }}
           >

@@ -12,22 +12,32 @@ import { format } from "date-fns";
 import { useUserService } from "../../services";
 
 export default function Users() {
-  const { getUsers, updateUser } = useUserService()
+  const { getUsersByProperty, updateUser } = useUserService()
   const { t } = useTranslation();
   const { classes } = useStyles();
-  const profile = useProfile();
 
   const [users, setUsers] = useState<User[]>([])
+  const [searchText, setSearchText] = useState<string>("")
+  const [userRole, setUserRole] = useState<string>("")
+  const [userStatus, setUserStatus] = useState<string>("")
   const [page, setPage] = useState<number>(1)
+  const [totalPages, setTotalPages] = useState<number>(0)
   const [showEditUserModal, setShowEditUserModal] = useState<boolean>(false)
   const [selectedUser, setSelectedUser] = useState<User | any>()
 
   useEffect(() => {
-    getUsers({
+    getUsersByProperty({
       error: console.error,
-      success: (res) => setUsers(res)
-    })
-  }, [])
+      success: (res) => {
+        setUsers(res.users)
+        setTotalPages(Math.ceil(res.count / 20))
+      }
+    }, {
+      text: searchText,
+      ...(userRole && { role: userRole }),
+      ...(userStatus && { status: userStatus })
+    }, { page: page - 1 })
+  }, [page, searchText, userRole, userStatus])
 
   const rows = users.map((user) => (
     <tr key={user._id} style={{ position: "relative" }}>
@@ -91,29 +101,22 @@ export default function Users() {
         <Select
           placeholder="Type d'utlisateur"
           data={[
-            { value: UserRoles.STAFF, label: UserRoles.STAFF },
-            { value: 'ng', label: 'Angular' },
-            { value: 'svelte', label: 'Svelte' },
-            { value: 'vue', label: 'Vue' },
+            { value: "", label: "Type d'utlisateur" },
+            { value: UserRoles.ADMIN, label: firstLetterUpperCase(UserRoles.ADMIN) },
+            { value: UserRoles.STAFF, label: firstLetterUpperCase(UserRoles.STAFF) },
+            { value: UserRoles.USER, label: "Utilisateur" }
           ]}
-        />
-        <Select
-          placeholder="ZIP"
-          data={[
-            { value: 'react', label: 'React' },
-            { value: 'ng', label: 'Angular' },
-            { value: 'svelte', label: 'Svelte' },
-            { value: 'vue', label: 'Vue' },
-          ]}
+          onChange={(value) => setUserRole(value as string)}
         />
         <Select
           placeholder="Status"
           data={[
-            { value: 'react', label: 'React' },
-            { value: 'ng', label: 'Angular' },
-            { value: 'svelte', label: 'Svelte' },
-            { value: 'vue', label: 'Vue' },
+            { value: "", label: "Status" },
+            { value: UserStatus.ON, label: "Actif" },
+            { value: UserStatus.OFF, label: "Désactivé" },
+            { value: UserStatus.BAN, label: "Banni" }
           ]}
+          onChange={(value) => setUserStatus(value as string)}
         />
       </Group>
 
@@ -137,7 +140,11 @@ export default function Users() {
       style={{ borderRadius: 10, borderStyle: "solid", borderWidth: 1, borderColor: "#EDF0F2", backgroundColor: "white" }}
     >
       {/* search input */}
-      <TextInput placeholder="Recherche par nom" icon={<IoIosSearch size={14} />} />
+      <TextInput
+        placeholder="Recherche par identifiant, nom ou prénom"
+        icon={<IoIosSearch size={14} />}
+        onChange={(event) => setSearchText(event.currentTarget.value)}
+      />
 
       {/* table */}
       <Table mt={"xl"}>
@@ -149,7 +156,7 @@ export default function Users() {
             <th>XP</th>
             <th>Solde</th>
             <th>Gén.</th>
-            <th>Status</th>
+            <th style={{ width: "15%" }}>Status</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
@@ -161,7 +168,7 @@ export default function Users() {
           size="sm"
           page={page}
           onChange={setPage}
-          total={10}
+          total={totalPages}
           withControls={false}
         />
       </Group>
@@ -264,23 +271,6 @@ export default function Users() {
           />
         </Group>
 
-        {/* last connexion && inscription date */}
-        <Group position="apart" grow>
-          <TextInput
-            id="lastActivity"
-            label="Dernière activité"
-            onChange={(event) => setSelectedUser({ ...selectedUser, lastActivity: event.currentTarget.value })}
-            value={selectedUser?.lastActivity && format(new Date(selectedUser?.lastActivity), "dd/MM/yyyy")}
-          />
-
-          <TextInput
-            id="inscriptionDate"
-            label="Date d'inscription"
-            onChange={(event) => setSelectedUser({ ...selectedUser, inscriptionDate: event.currentTarget.value })}
-            value={selectedUser?.inscriptionDate && format(new Date(selectedUser?.inscriptionDate), "dd/MM/yyyy")}
-          />
-        </Group>
-
         {/* notes */}
         <Textarea
           placeholder="Ecrivez ici..."
@@ -305,13 +295,10 @@ export default function Users() {
           </Text>
           <Button
             onClick={() => {
-              // TO DO: call API
               updateUser({
                 error: console.error,
                 success: (res) => {
-                  let user = users.find(user => user._id === selectedUser._id)
-                  user = { ...selectedUser }
-                  console.log(user)
+                  users[users.map(user => user._id).indexOf(selectedUser._id)] = selectedUser
                   setUsers([...users])
                   setShowEditUserModal(false)
                 }

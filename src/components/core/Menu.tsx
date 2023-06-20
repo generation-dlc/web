@@ -13,7 +13,7 @@ export default function Menu() {
     { id: 1, label: "Utilisateurs", icon: <FiUser size={16} color="#3E90E6" />, path: "/users" },
     { id: 2, label: "Inbox", icon: <FiMessageSquare size={16} color="#3E90E6" />, path: "/inbox" },
     { id: 3, label: "Transactions", icon: <FiCheck size={16} color="#3E90E6" />, path: "/transactions" },
-    { id: 4, label: "Récompenses", icon: <FiGift size={16} color="#3E90E6" />, path: "/gifts" },
+    { id: 4, label: "Récompenses", icon: <FiGift size={16} color="#3E90E6" />, path: "/products" },
     { id: 5, label: "Events", icon: <FiCalendar size={16} color="#3E90E6" />, path: "/events" },
     { id: 6, label: "Paramètres", icon: <FiGitPullRequest size={16} color="#B3B8BD" />, path: "/settings" }
   ])
@@ -28,7 +28,7 @@ export default function Menu() {
       setActive(2)
     else if (path === "transactions")
       setActive(3)
-    else if (path === "gifts")
+    else if (path === "products")
       setActive(4)
     else if (path === "events")
       setActive(5)

@@ -6,19 +6,14 @@ export type ChangePasswordPayload = {
   newPassword: string;
 }
 
-export type AddUserPayload = {
-  firstName: string,
-  lastName: string,
-  role: UserRoles,
-  email: string,
-}
-
 export const useUserService = () => {
   const { get, post, patch } = useHttp("/users");
 
   return {
-    getUsers: (mutators: HttpMutators) =>
-      get(mutators),
+    getUsers: (mutators: HttpMutators, params?: any) =>
+      get(mutators, { params }),
+    getUsersByProperty: (mutators: HttpMutators, payload: any, params?: any) =>
+      post(mutators, { url: "/property", payload, params }),
     getProfile: (mutators: HttpMutators) =>
       get(mutators, { url: "/who-am-i" }),
     updateCurrentUser: (mutators: HttpMutators, payload: any) =>

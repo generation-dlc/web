@@ -1,136 +1,51 @@
-import { useEffect, useState } from "react";
-import { createStyles, Group, Stack, Text, Pagination, Title, Select, TextInput, Paper, Table, Badge, ActionIcon, Menu } from "@mantine/core";
+import { useEffect, useRef, useState } from "react";
+import { createStyles, Group, Stack, Text, Pagination, Title, Select, TextInput, Paper, Table, Badge, ActionIcon, Menu, Modal } from "@mantine/core";
 import { IoIosSearch } from 'react-icons/io';
 import { BsThreeDots } from 'react-icons/bs';
 import { FiChevronUp, FiX } from 'react-icons/fi';
-import { useProfile } from "../../store/reducers/user-reducer";
 import { useTranslation } from "react-i18next";
-import { User, Transaction, TransactionType, UserRoles, UserStatus } from "../../types";
+import { Transaction, TransactionType, UserRoles } from "../../types";
 import format from "date-fns/format";
 import { firstLetterUpperCase } from "../../utils";
+import { useTransactionService } from "../../services/transaction";
 
 export default function Transactions() {
   const { t } = useTranslation();
   const { classes } = useStyles();
-  const profile = useProfile();
+  // const { getUsers } = useUserService()
+  const { getTransactionsByProperty, getTransactionCommission } = useTransactionService()
 
+  // const [staffs, setStaffs] = useState<User[]>([])
+  const [searchText, setSearchText] = useState<string>("")
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [transactionType, setTransactionType] = useState<string>()
+  const [transactionFrom, setTransactionFrom] = useState<string>()
   const [page, setPage] = useState<number>(1)
+  const [totalPages, setTotalPages] = useState<number>(0)
+  const [showTransactionCommissionModal, setShowTransactionCommissionModal] = useState<boolean>(false)
+  const [rowsTransactionCommission, setRowsTransactionCommission] = useState([])
 
   useEffect(() => {
-    setTransactions([
-      {
-        _id: "0",
-        date: new Date().toISOString(),
-        type: TransactionType.ACTION,
-        description: "Entrée",
-        points: 20,
-        xp: 20,
-        from: {
-          _id: "0",
-          username: "gokugen",
-          email: "hadjadjirayane@outlook.fr",
-          firstName: "Mohamed",
-          lastName: "HADJADJI",
-          lastActivity: new Date().toISOString(),
-          inscriptionDate: new Date().toISOString(),
-          role: UserRoles.USER,
-          status: UserStatus.ON,
-          xp: 0,
-          balance: 0,
-          generation: {
-            _id: "0",
-            number: 1
-          }
-        },
-        to: {
-          _id: "0",
-          username: "gokugen",
-          email: "hadjadjirayane@outlook.fr",
-          firstName: "Mohamed",
-          lastName: "HADJADJI",
-          lastActivity: new Date().toISOString(),
-          inscriptionDate: new Date().toISOString(),
-          role: UserRoles.USER,
-          status: UserStatus.ON,
-          xp: 0,
-          balance: 0,
-          generation: {
-            _id: "0",
-            number: 1
-          }
-        },
-        actionId: "1"
-      },
-      {
-        _id: "1",
-        date: new Date().toISOString(),
-        type: TransactionType.EVENT,
-        description: "Ticket - Bling King 11/07/2023",
-        points: -120,
-        from: {
-          _id: "0",
-          username: "gokugen",
-          email: "hadjadjirayane@outlook.fr",
-          firstName: "Mohamed",
-          lastName: "HADJADJI",
-          lastActivity: new Date().toISOString(),
-          inscriptionDate: new Date().toISOString(),
-          role: UserRoles.USER,
-          status: UserStatus.ON,
-          xp: 0,
-          balance: 0,
-          generation: {
-            _id: "0",
-            number: 1
-          }
-        },
-        to: {
-          _id: "0",
-          username: "gokugen",
-          email: "hadjadjirayane@outlook.fr",
-          firstName: "Mohamed",
-          lastName: "HADJADJI",
-          lastActivity: new Date().toISOString(),
-          inscriptionDate: new Date().toISOString(),
-          role: UserRoles.USER,
-          status: UserStatus.ON,
-          xp: 0,
-          balance: 0,
-          generation: {
-            _id: "0",
-            number: 1
-          }
-        },
-        eventId: "0"
-      },
-      {
-        _id: "2",
-        date: new Date().toISOString(),
-        type: TransactionType.PRODUCT,
-        description: "Bon d'achat Paint Quotidientcdskjncdsjknxs",
-        points: -90,
-        to: {
-          _id: "0",
-          username: "gokugen",
-          email: "hadjadjirayane@outlook.fr",
-          firstName: "Mohamed",
-          lastName: "HADJADJI",
-          lastActivity: new Date().toISOString(),
-          inscriptionDate: new Date().toISOString(),
-          role: UserRoles.USER,
-          status: UserStatus.ON,
-          xp: 0,
-          balance: 0,
-          generation: {
-            _id: "0",
-            number: 1
-          }
-        },
-        productId: "0"
-      },
-    ])
+    // getUsers({
+    //   error: console.error,
+    //   success: (res) => setStaffs(res)
+    // }, { role: UserRoles.STAFF })
   }, [])
+
+  useEffect(() => {
+    getTransactionsByProperty({
+      error: console.error,
+      success: (res) => {
+        setTransactions(res.transactions)
+        setTotalPages(Math.ceil(res.count / 20))
+      }
+    }, {
+      simple: true,
+      text: searchText,
+      ...(transactionType && { type: transactionType }),
+      ...(transactionFrom && { from: transactionFrom }),
+    }, { page: page - 1 })
+  }, [page, searchText, transactionType, transactionFrom])
 
   const rows = transactions.map((transaction) => (
     <tr key={transaction._id} style={{ position: "relative" }}>
@@ -174,7 +89,37 @@ export default function Transactions() {
           </Menu.Target>
 
           <Menu.Dropdown>
-            <Menu.Item icon={<FiChevronUp size={16} />}>
+            <Menu.Item
+              icon={<FiChevronUp
+                size={16} />}
+              onClick={() => getTransactionCommission({
+                error: console.error,
+                success: (res) => {
+                  setRowsTransactionCommission(res.map((commission: Transaction) => (
+                    <tr key={commission._id} style={{ position: "relative" }}>
+                      <td>{format(new Date(commission.date), "dd/MM/yyyy HH:mm")}</td>
+                      <td><Text style={{ color: commission.points > 0 ? "#5FC86D" : "red" }}>
+                        {commission.points > 0 ? "+" + commission.points : commission.points}
+                      </Text>
+                      </td>
+                      <td>{commission.xp ? "+" + commission.xp : "-"}</td>
+                      <td>
+                        <Stack style={{ gap: 0 }}>
+                          <Text style={{ color: "black" }}>{commission.to.firstName + " " + commission.to.lastName}</Text>
+                          <Text>{commission.to.role === UserRoles.USER ? "Client" : firstLetterUpperCase(commission.to.role)}</Text>
+                        </Stack>
+                      </td>
+                      {<Group style={{ position: "absolute", right: 10, top: 15, gap: 0 }}>
+                        <ActionIcon variant="transparent">
+                          <BsThreeDots size={12} color="black" />
+                        </ActionIcon>
+                      </Group>}
+                    </tr>
+                  )))
+                  setShowTransactionCommissionModal(true)
+                }
+              }, transaction._id)
+              }>
               Afficher les commissions
             </Menu.Item>
             <Menu.Item icon={<FiX size={16} color="red" />}>
@@ -194,31 +139,23 @@ export default function Transactions() {
     <Group position="apart">
       <Group>
         <Select
-          placeholder="Donneur d'ordre"
-          data={[
-            { value: 'react', label: 'React' },
-            { value: 'ng', label: 'Angular' },
-            { value: 'svelte', label: 'Svelte' },
-            { value: 'vue', label: 'Vue' },
-          ]}
-        />
-        <Select
           placeholder="Type de transaction"
           data={[
+            { value: "", label: "Type de transaction" },
             { value: TransactionType.ACTION, label: firstLetterUpperCase(TransactionType.ACTION) },
             { value: TransactionType.PRODUCT, label: firstLetterUpperCase(TransactionType.PRODUCT) },
             { value: TransactionType.EVENT, label: firstLetterUpperCase(TransactionType.EVENT) },
           ]}
+          onChange={(value) => setTransactionType(value as string)}
         />
-        <Select
-          placeholder="Destinataire"
-          data={[
-            { value: 'react', label: 'React' },
-            { value: 'ng', label: 'Angular' },
-            { value: 'svelte', label: 'Svelte' },
-            { value: 'vue', label: 'Vue' },
-          ]}
-        />
+        {/* <Select
+          placeholder="Donneur d'ordre"
+          data={(() => {
+            const lsStaffs = staffs.map(staff => ({ value: staff._id, label: staff.firstName + " " + staff.lastName }))
+            return [{ value: "", label: "Donneur d'ordre" }, ...lsStaffs]
+          })()}
+          onChange={(value) => setTransactionFrom(value as string)}
+        /> */}
       </Group>
 
       <Text
@@ -241,7 +178,11 @@ export default function Transactions() {
       style={{ borderRadius: 10, borderStyle: "solid", borderWidth: 1, borderColor: "#EDF0F2", backgroundColor: "white" }}
     >
       {/* search input */}
-      <TextInput placeholder="Recherche par destinataire" icon={<IoIosSearch size={14} />} />
+      <TextInput
+        placeholder="Recherche par destinataire, donneur d'ordre ou libellé"
+        icon={<IoIosSearch size={14} />}
+        onChange={(event) => setSearchText(event.currentTarget.value.toLowerCase())}
+      />
 
       {/* table */}
       <Table mt={"xl"}>
@@ -253,7 +194,7 @@ export default function Transactions() {
             <th>Points</th>
             <th>XP</th>
             <th>{"Donneur d'ordre"}</th>
-            <th>Utilisateur</th>
+            <th>Destinataire</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
@@ -265,11 +206,35 @@ export default function Transactions() {
           size="sm"
           page={page}
           onChange={setPage}
-          total={10}
+          total={totalPages}
           withControls={false}
         />
       </Group>
     </Paper>
+
+    {/* commission modal */}
+    <Modal
+      opened={showTransactionCommissionModal}
+      onClose={() => setShowTransactionCommissionModal(false)}
+      title={<Title order={4}>{"Commssions"}</Title>}
+      withCloseButton={false}
+      styles={{ modal: { minWidth: 600 }, title: { padding: 10, paddingTop: 0 }, body: { padding: 10 } }}
+      overflow="outside"
+      centered
+    >
+      {/* table */}
+      <Table mt={"xl"}>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Points</th>
+            <th>XP</th>
+            <th>Utilisateur</th>
+          </tr>
+        </thead>
+        <tbody>{rowsTransactionCommission}</tbody>
+      </Table>
+    </Modal>
   </div>
 }
 
