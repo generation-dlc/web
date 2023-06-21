@@ -22,6 +22,7 @@ export type User = {
   email: string;
   xp: number;
   balance: number;
+  affiliatedUsers: User[] & string[];
   generation: { _id: string, number: number };
   note?: string;
   level?: number;

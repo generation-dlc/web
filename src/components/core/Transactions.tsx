@@ -25,14 +25,16 @@ export default function Transactions() {
   const [showTransactionCommissionModal, setShowTransactionCommissionModal] = useState<boolean>(false)
   const [rowsTransactionCommission, setRowsTransactionCommission] = useState([])
 
-  useEffect(() => {
-    // getUsers({
-    //   error: console.error,
-    //   success: (res) => setStaffs(res)
-    // }, { role: UserRoles.STAFF })
-  }, [])
+  const [query, setQuery] = useState(window.location.href.split("?").length > 1 && window.location.href.split("?")[1].split("="))
 
   useEffect(() => {
+    const obj: any = {}
+    if (query)
+      for (let i = 0; i < query.length; i++) {
+        obj[query[i]] = query[i + 1]
+        i++
+      }
+
     getTransactionsByProperty({
       error: console.error,
       success: (res) => {
@@ -44,8 +46,8 @@ export default function Transactions() {
       text: searchText,
       ...(transactionType && { type: transactionType }),
       ...(transactionFrom && { from: transactionFrom }),
-    }, { page: page - 1 })
-  }, [page, searchText, transactionType, transactionFrom])
+    }, { page: page - 1, ...obj })
+  }, [query, page, searchText, transactionType, transactionFrom])
 
   const rows = transactions.map((transaction) => (
     <tr key={transaction._id} style={{ position: "relative" }}>

@@ -2,16 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { createStyles, Group, Stack, Text, Pagination, ActionIcon, Title, Select, TextInput, Paper, Table, Badge, Avatar, Modal, Textarea, Button, Menu } from "@mantine/core";
 import { IoIosSearch } from 'react-icons/io';
 import { BsPencil, BsThreeDots } from 'react-icons/bs';
-import { FiSend, FiCheck, FiX, FiInfo } from 'react-icons/fi';
-import { useProfile } from "../../store/reducers/user-reducer";
+import { FiSend, FiCheck, FiX, FiUser, FiInfo } from 'react-icons/fi';
 import { useTranslation } from "react-i18next";
 import differenceInDays from 'date-fns/differenceInDays'
 import { UserRoles, UserStatus, User } from "../../types";
 import { firstLetterUpperCase } from "../../utils";
 import { format } from "date-fns";
 import { useUserService } from "../../services";
+import { useNavigate } from "react-router-dom";
 
 export default function Users() {
+  const navigate = useNavigate()
   const { getUsersByProperty, updateUser } = useUserService()
   const { t } = useTranslation();
   const { classes } = useStyles();
@@ -43,7 +44,7 @@ export default function Users() {
     <tr key={user._id} style={{ position: "relative" }}>
       <td>
         <Group>
-          <Avatar color="gray" radius="xl">{user.firstName[0] + user.lastName[0]}</Avatar>
+          <Avatar color="dark" radius="xl">{user.firstName[0] + user.lastName[0]}</Avatar>
           <Stack style={{ gap: 0 }}>
             {user.firstName + " " + user.lastName}
             <Text>{user.role === UserRoles.USER ? "Client" : firstLetterUpperCase(user.role)}</Text>
@@ -76,14 +77,34 @@ export default function Users() {
             <Menu.Item icon={<FiSend size={16} />}>
               Envoyer un message
             </Menu.Item>
-            <Menu.Item icon={<FiCheck size={16} />}>
+            <Menu.Item
+              icon={<FiCheck size={16} />}
+              onClick={() => navigate("/transactions?to=" + user._id)}
+            >
               Afficher les transactions
             </Menu.Item>
             <Menu.Item icon={<FiInfo size={16} style={{ transform: "rotate(180deg)" }} />}>
               Envoyer un avertissement
             </Menu.Item>
-            <Menu.Item icon={<FiX size={16} color="red" />}>
-              <Text style={{ color: "red" }}>{"Bannir l'utilisateur"}</Text>
+            <Menu.Item
+              icon={user.status === UserStatus.ON
+                ? <FiX size={16} color={"red"} />
+                : <FiUser size={16} color={"blue"} />
+              }
+              onClick={() => updateUser({
+                error: console.error,
+                success: (res) => {
+                  user.status = user.status === UserStatus.ON ? UserStatus.BAN : UserStatus.ON
+                  setUsers([...users])
+                }
+              }, user._id, { ...user, status: user.status === UserStatus.ON ? UserStatus.BAN : UserStatus.ON })}
+            >
+              <Text style={{ color: user.status === UserStatus.ON ? "red" : "blue" }}>
+                {user.status === UserStatus.ON
+                  ? "Bannir l'utilisateur"
+                  : "Réactiviter l'utilisateur"
+                }
+              </Text>
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>

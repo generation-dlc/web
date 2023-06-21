@@ -1,37 +1,541 @@
-import { useEffect, useState } from "react";
-import { createStyles, Group, Title, Button, Paper, Grid, Stack, Text, Select, Avatar } from "@mantine/core";
+import { forwardRef, useEffect, useRef, useState } from "react";
+import { createStyles, Group, Title, Button, Paper, Stack, Text, Avatar, TextInput, ActionIcon, ScrollArea, Divider, MultiSelect, MultiSelectValueProps, CloseButton, Box } from "@mantine/core";
 import 'rc-rate/assets/index.css';
 import "@szhsin/react-menu/dist/core.css";
 import 'rc-rate/assets/index.css';
 import { useProfile } from "../../store/reducers/user-reducer";
+import differenceInMinutes from 'date-fns/differenceInMinutes'
+import differenceInHours from 'date-fns/differenceInHours'
+import differenceInDays from 'date-fns/differenceInDays'
+import differenceInMonths from 'date-fns/differenceInMonths'
+import differenceInYears from 'date-fns/differenceInYears'
 import { useTranslation } from "react-i18next";
-import { useIsDark } from "../../Root";
-import { User } from "../../types";
-import { FiUser } from "react-icons/fi";
+import { User, UserRoles } from "../../types";
+import { IoIosSearch } from "react-icons/io";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { useConversationService, useGenerationService, useUserService } from "../../services";
+import useWebSocket from "react-use-websocket";
+import { useToken } from "../../store/reducers/auth-reducer";
+import { IoIosGitNetwork } from "react-icons/io";
+import { FiSend } from "react-icons/fi";
+import { firstLetterUpperCase } from "../../utils";
 
 export default function Inbox() {
   const { t } = useTranslation();
   const { classes } = useStyles();
+  const profile = useProfile();
+  const token = useToken()
+  const { getConversations, getConversationMessages } = useConversationService()
+  const { getGenerations } = useGenerationService()
+  const { getUsers } = useUserService()
 
-  const [conversation, setConversations] = useState<any[]>([])
+  const viewport = useRef<HTMLDivElement>(null);
+  const viewportUsers = useRef<HTMLDivElement>(null);
+  const firstTime = useRef<boolean>(true)
+  const firstTimeUser = useRef<boolean>(true)
+  const page = useRef<number>(0)
+  const userPage = useRef<number>(0)
+
+  const [conversations, setConversations] = useState<any[]>([]
+    //   [
+    //   {
+    //     _id: "1",
+    //     users: [
+    //       {
+    //         _id: "1",
+    //         username: "gokugen",
+    //         firstName: "Mohamed",
+    //         lastName: "HADJADJI"
+    //       },
+    //       {
+    //         _id: "2",
+    //         username: "gokugen",
+    //         firstName: "Mohamed",
+    //         lastName: "HADJADJI"
+    //       },
+    //     ],
+    //     messages: [
+    //       {
+    //         _id: "1",
+    //         text: "Le probleme c que jsp si ca vraiment marche donc je vais tester et sinon on saura jamais du coup",
+    //         readBy: ["64926453d3812ce0d580dc56", "2"],
+    //         date: new Date().toISOString(),
+    //         createdBy: {
+    //           _id: "64926453d3812ce0d580dc56",
+    //           username: "gokugen",
+    //           firstName: "Mohamed",
+    //           lastName: "HADJADJI"
+    //         }
+    //       },
+    //       {
+    //         _id: "1",
+    //         text: "okkkkkkkkkokkkkkkkkkokkkkkkkkkokkkkkkkkkokkkkkkkkkokkkkkkkkk",
+    //         readBy: ["2"],
+    //         date: new Date().toISOString(),
+    //         createdBy: {
+    //           _id: "2",
+    //           username: "rs92",
+    //           firstName: "Daniel",
+    //           lastName: "KINFRI"
+    //         }
+    //       }
+    //     ]
+    //   },
+    //   {
+    //     _id: "1",
+    //     users: [
+    //       {
+    //         _id: "1",
+    //         username: "gokugen",
+    //         firstName: "Mohamed",
+    //         lastName: "HADJADJI"
+    //       },
+    //       {
+    //         _id: "2",
+    //         username: "gokugen",
+    //         firstName: "Mohamed",
+    //         lastName: "HADJADJI"
+    //       },
+    //     ],
+    //     messages: [
+    //       {
+    //         _id: "1",
+    //         text: "okkkkkkkkk",
+    //         readBy: ["1", "2"],
+    //         date: new Date().toISOString(),
+    //         createdBy: {
+    //           _id: "1",
+    //           username: "gokugen",
+    //           firstName: "Mohamed",
+    //           lastName: "HADJADJI"
+    //         }
+    //       }
+    //     ]
+    //   }
+    // ]
+  )
   const [messages, setMessages] = useState<any[]>([])
+  const [indexClick, setIndexClick] = useState<number>(0)
+  const [searchConversation, setSearchConversation] = useState<string>("")
+  const [textMessage, setTextMessage] = useState<string>("")
+  const [showSearchUsers, setShowSearchUsers] = useState<boolean>(false)
+  const [generations, setGenerations] = useState<any[]>([])
+  const [users, setUsers] = useState<any[]>([])
+  const [values, setValues] = useState<any>([])
+  const [multiSelectData, setMultiSelectData] = useState<any>([])
+
+  const { sendMessage } = useWebSocket(process.env.REACT_APP_WS_URL as string, {
+    onOpen: () => {
+      sendMessage(JSON.stringify({
+        token
+      }))
+    },
+    onMessage: (e) => {
+      const res = JSON.parse(e.data)
+
+      switch (res.operation) {
+        case "addMessage":
+          if (res.data.message.createdBy === profile._id)
+            setTextMessage("")
+
+          setMessages([...messages, { ...res.data.message, createdBy: profile }])
+
+          conversations[indexClick].messages.push(res.data.message)
+          const tmp = { ...conversations[indexClick] }
+          conversations.splice(indexClick, 1)
+          conversations.unshift(tmp)
+          setConversations([...conversations])
+          setIndexClick(0)
+
+          viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
+          break
+        default:
+          console.log(res)
+      }
+    }
+  })
 
   useEffect(() => {
-    setConversations([])
+    getConversations({
+      error: console.error,
+      success: (res) => {
+        setConversations(res)
+        setMessages(res[0].messages.sort((a: any, b: any) => a.date > b.date ? 1 : -1))
+        viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
+      }
+    })
+
+    getGenerations({
+      error: console.error,
+      success: (res) => setGenerations(res)
+    })
+
+    getUsers({
+      error: console.error,
+      success: (res) => setUsers(res)
+    })
   }, [])
+
+  useEffect(() => {
+    setMultiSelectData([
+      ...generations.map((g: any) => ({ value: g._id, label: "Generation " + g.number })),
+      ...users.map((u: any) => ({ value: u._id, label: u.firstName + " " + u.lastName + (u.generation ? " (#" + u.generation?.number + ")" : "") }))
+    ])
+  }, [generations, users])
+
+  function getMessageDifferenceDate(date: Date) {
+    const diffInMinutes = Math.abs(differenceInMinutes(date, new Date()))
+    if (diffInMinutes < 60)
+      return diffInMinutes === 0 ? 1 + "min" : diffInMinutes + "min"
+    else {
+      const diffInHours = Math.abs(differenceInHours(date, new Date()))
+      if (diffInHours < 24)
+        return diffInHours + "h"
+      else {
+        const diffInDays = Math.abs(differenceInDays(date, new Date()))
+        if (diffInDays < 31)
+          return diffInDays + "j"
+        else {
+          const diffInMonth = Math.abs(differenceInMonths(date, new Date()))
+          if (diffInMonth < 12)
+            return diffInMonth + "mois"
+          else {
+            const diffInYears = Math.abs(differenceInYears(date, new Date()))
+            return diffInYears <= 1 ? diffInYears + "an" : diffInYears + "ans"
+          }
+        }
+      }
+    }
+  }
+
+  const userAvatar = (user: User) => <Avatar color="dark" radius="xl" style={{ zIndex: 0 }}>{user.firstName[0] + user.lastName[0]}</Avatar>
+
+  const userMessage = (message: any) =>
+    <Paper p="md" style={{ wordBreak: "break-word", minWidth: "60%", backgroundColor: message.createdBy === profile._id ? "#2875DF" : "#F6F7F9" }}>
+      <Text style={{ color: message.createdBy === profile._id ? "white" : "black" }}>{message.text}</Text>
+    </Paper>
+
+  const Value =
+    ({
+      value,
+      label,
+      onRemove,
+      classNames,
+      ...others
+    }: MultiSelectValueProps & { value: string }) =>
+      <div {...others}>
+        <Box
+          sx={(theme) => ({
+            display: 'flex',
+            cursor: 'default',
+            alignItems: 'center',
+            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+            border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[4]}`,
+            paddingLeft: 10,
+            borderRadius: 4,
+          })}
+        >
+          {generations.map(g => g._id).includes(value) && <Box mr={10}>
+            <IoIosGitNetwork size={14} style={{ transform: "rotate(180deg)" }} />
+          </Box>}
+          <Box sx={{ lineHeight: 1, fontSize: 12 }}>{label}</Box>
+          <CloseButton
+            onClick={() => {
+              setValues([...values.filter((obj: any) => obj.value !== value)])
+              if (generations.map(g => g._id).includes(value))
+                setMultiSelectData([{ value, label }, ...multiSelectData])
+              else
+                setMultiSelectData([...multiSelectData, { value, label }])
+            }}
+            variant="transparent"
+            size={22}
+            iconSize={14}
+            tabIndex={-1}
+          />
+        </Box>
+      </div>
+
+  interface ItemProps extends React.ComponentPropsWithoutRef<'div'> {
+    value: string
+    label: string
+  }
+
+  const SelectItem = ({ value, label, ...others }: ItemProps) => (
+    <div {...others}>
+      <Group noWrap>
+        {generations.map(g => g._id).includes(value) && <IoIosGitNetwork size={14} style={{ transform: "rotate(180deg)" }} />}
+        <Text style={{ color: "black" }}>{label}</Text>
+      </Group>
+    </div>
+  )
 
   return <>
     <div className={classes.rootContainer}>
       <Group position="apart">
         {/* title */}
-        <Title order={2}>Générations</Title>
+        <Title order={2}>Inbox</Title>
 
         {/* new button */}
-        <Button onClick={() => { }}>
+        <Button onClick={() => {
+          setMessages([])
+          setShowSearchUsers(!showSearchUsers)
+        }}>
           Nouveau
         </Button>
       </Group>
-    </div>
+
+      <Group style={{ height: "100%" }} spacing="xl">
+        {/* conversations list */}
+        <ScrollArea style={{ height: window.innerHeight * 0.8, width: window.innerWidth * 0.2, gap: 0 }}>
+          {/* search input */}
+          <TextInput
+            placeholder="Recherche"
+            icon={<IoIosSearch size={14} />}
+            onChange={(event) => setSearchConversation(event.currentTarget.value.toLowerCase())}
+          />
+          {conversations.map((conversation, index) => {
+            const user = conversation.users.find((u: User) => u._id !== profile._id)
+
+            return <Group
+              key={conversation._id}
+              style={{ backgroundColor: indexClick === index ? "#FFFFFF" : "" }}
+              onClick={() => {
+                setIndexClick(index)
+                setMessages(conversations[index].messages)
+                viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
+              }}
+              p="sm"
+              sx={{
+                "&:hover": {
+                  cursor: "pointer"
+                }
+              }}
+            >
+              <Avatar color="dark" radius="xl">{user.firstName[0] + user.lastName[0]}</Avatar>
+
+              <Stack>
+                <Group position="apart">
+                  <Text
+                    weight="bold"
+                    style={{
+                      width: window.innerWidth * 0.13,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      color: "black"
+                    }}
+                  >
+                    {user.firstName + " " + user.lastName}
+                  </Text>
+
+                  <Text>{getMessageDifferenceDate(new Date(conversation.messages[conversation.messages.length - 1].date))}</Text>
+                </Group>
+
+                <Text
+                  style={{
+                    width: window.innerWidth * 0.15,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    color: "black"
+                  }}
+                >
+                  {conversation.messages[conversation.messages.length - 1].text}
+                </Text>
+              </Stack>
+            </Group>
+          })}
+        </ScrollArea>
+
+        {/* messages list */}
+        <ScrollArea
+          p="xl"
+          type="scroll"
+          viewportRef={viewport}
+          style={{ position: "relative", flex: 2, height: window.innerHeight * 0.8, borderStyle: "solid", borderWidth: 1, borderColor: "#EDF0F2", backgroundColor: "white" }}
+          onScrollPositionChange={(position) => {
+            if (position.y < 150 && firstTime.current) {
+              firstTime.current = false
+              page.current++
+
+              getConversationMessages({
+                error: console.error,
+                success: (res) => {
+                  firstTime.current = true
+                  setMessages([...messages, ...res].sort(((a: any, b: any) => a.date > b.date ? 1 : -1)))
+                }
+              }, conversations[indexClick]._id, { page: page.current })
+            }
+          }}
+        >
+          {/* header */}
+          <Group p={20} style={{ zIndex: 1, width: "100%", position: "absolute", left: 0, top: 0, backgroundColor: "white" }}>
+            {(() => {
+              if (showSearchUsers)
+                return <MultiSelect
+                  searchable
+                  style={{ flex: 1 }}
+                  data={[
+                    ...generations.map(generation => ({ value: generation._id, label: "Generation " + generation.number })),
+                    ...users.map(u => ({ value: u._id, label: u.firstName + " " + u.lastName }))
+                  ]}
+                  value={values.map((obj: any) => obj.value)}
+                  valueComponent={Value}
+                  itemComponent={SelectItem}
+                  icon={<IoIosSearch size={14} />}
+                  placeholder="Recherchez des utilisateurs ou des générations"
+                  dropdownComponent={() =>
+                    <ScrollArea
+                      style={{ flex: 1 }}
+                      onScrollPositionChange={(position) => {
+                        if (position.y > 600 && firstTimeUser.current) {
+                          firstTimeUser.current = false
+                          userPage.current++
+
+                          getUsers({
+                            error: console.error,
+                            success: (res) => {
+                              // firstTimeUser.current = true
+                              setUsers([...users, ...res])
+                            }
+                          }, { page: userPage.current })
+                        }
+                      }}
+                      type="always"
+                      ref={viewportUsers}
+                    >
+                      {multiSelectData.map((obj: any) =>
+                        <Stack
+                          m="xs"
+                          p="xs"
+                          key={obj.value}
+                          sx={{
+                            "&:hover": {
+                              cursor: "pointer",
+                              backgroundColor: "#F6F7F9"
+                            }
+                          }}
+                          style={{ borderRadius: 5 }}
+                          onClick={() => {
+                            setValues([...values, obj])
+                            setMultiSelectData([...multiSelectData.filter((data: any) => data.value !== obj.value)])
+                          }}
+                        >
+                          <Group style={{ gap: 5 }}>
+                            {generations.map(g => g._id).includes(obj.value) && <IoIosGitNetwork size={14} style={{ transform: "rotate(180deg)" }} />}
+                            <Text size="sm" style={{ color: "black" }}>{obj.label}</Text>
+                          </Group>
+                        </Stack>)
+                      }
+                    </ScrollArea>
+                  }
+                />
+              else if (conversations.length) {
+                const user = conversations[indexClick].users.find((u: User) => u._id !== profile._id)
+
+                return <Stack mx={10} style={{ width: "100%" }} spacing="xs">
+                  <Group px={15}>
+                    <Avatar color="dark" radius="xl" > {user.firstName[0] + user.lastName[0]}</Avatar>
+
+                    <Stack style={{ gap: 0 }}>
+                      <Text
+                        weight="bold"
+                        style={{
+                          width: window.innerWidth * 0.13,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          color: "black"
+                        }}
+                      >
+                        {user.firstName + " " + user.lastName}
+                      </Text>
+
+                      <Text size="sm">{
+                        user.role === UserRoles.USER
+                          ? "Client"
+                          : firstLetterUpperCase(user.role)
+                      }
+                      </Text>
+                    </Stack>
+                  </Group>
+
+                  <Divider color="#F1F3F5" />
+                </Stack>
+              }
+              else
+                return <></>
+            })()}
+          </Group>
+
+          {/* messages list */}
+          {
+            messages.map((message, index) =>
+              <Group
+                key={message._id}
+                position={message.createdBy._id === profile._id ? "right" : "left"}
+                mt={80}
+                mb={100}
+              >
+                {message.createdBy._id !== profile._id
+                  ? <>
+                    {userAvatar(message.createdBy)}
+                    <Stack spacing="xs">
+                      {userMessage(message)}
+                      <Text size="xs">{new Date(message.date).toLocaleTimeString()}</Text>
+                    </Stack>
+                  </>
+                  : <>
+                    <Stack align="flex-end" spacing="xs">
+                      {userMessage(message)}
+                      <Text size="xs">{format(new Date(message.date), "dd MMMM HH:mm", { locale: fr })}</Text>
+                    </Stack>
+
+                    {userAvatar(message.createdBy)}
+                  </>
+                }
+              </Group>
+            )
+          }
+
+          {/* text input */}
+          <Group p={20} style={{ width: "100%", position: "absolute", left: 0, bottom: 20, backgroundColor: "white" }}>
+            <TextInput
+              style={{ flex: 1 }}
+              placeholder="Ecrivez ici..."
+              value={textMessage}
+              onChange={(event) => setTextMessage(event.currentTarget.value.toLowerCase())}
+            />
+            <ActionIcon
+              variant="filled"
+              color="blue"
+              size="lg"
+              onClick={() => {
+                if (textMessage) {
+                  if (values.length)
+                    values.forEach((obj: any) =>
+                      sendMessage(JSON.stringify({
+                        operation: "createConversation",
+                        users: [profile._id, obj.value],
+                        message: textMessage
+                      }))
+                    )
+                  else
+                    sendMessage(JSON.stringify({
+                      operation: "addMessage",
+                      conversationId: conversations[indexClick]._id,
+                      text: textMessage
+                    }))
+                }
+              }}
+            >
+              <FiSend size={18} />
+            </ActionIcon>
+          </Group>
+        </ScrollArea>
+      </Group>
+    </div >
   </>
 }
 

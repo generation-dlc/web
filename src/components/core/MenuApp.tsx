@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { createStyles, Group, NavLink, Navbar, Title, Badge, Divider, Box, Stack, Text } from "@mantine/core";
-import { FiDatabase, FiUser, FiMessageSquare, FiCheck, FiGift, FiCalendar, FiGitPullRequest } from 'react-icons/fi';
+import { createStyles, Group, NavLink, Navbar, Title, Badge, Divider, Box, Stack, Text, Menu, Avatar } from "@mantine/core";
+import { FiDatabase, FiUser, FiMessageSquare, FiCheck, FiGift, FiCalendar, FiGitPullRequest, FiChevronRight, FiX } from 'react-icons/fi';
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { useProfile } from "../../store/reducers/user-reducer";
+import { useClearStore } from "../../store";
 
-export default function Menu() {
+export default function MenuApp() {
   const { t } = useTranslation();
   const { classes } = useStyles();
+  const profile = useProfile();
+  const clearStore = useClearStore();
 
   const menuLinks = useRef([
     { id: 0, label: "Generations", icon: <FiDatabase size={16} color="#3E90E6" />, path: "/generations" },
@@ -18,23 +22,22 @@ export default function Menu() {
     { id: 6, label: "Paramètres", icon: <FiGitPullRequest size={16} color="#B3B8BD" />, path: "/settings" }
   ])
   const [active, setActive] = useState<number>(0)
+  const path = window.location.href.split("/")[window.location.href.split("/").length - 1]
 
   useEffect(() => {
-    const path = window.location.href.split("/")[window.location.href.split("/").length - 1]
-
-    if (path === "users")
+    if (path.includes("users"))
       setActive(1)
-    else if (path === "inbox")
+    else if (path.includes("inbox"))
       setActive(2)
-    else if (path === "transactions")
+    else if (path.includes("transactions"))
       setActive(3)
-    else if (path === "products")
+    else if (path.includes("products"))
       setActive(4)
-    else if (path === "events")
+    else if (path.includes("events"))
       setActive(5)
-    else if (path === "settings")
+    else if (path.includes("settings"))
       setActive(6)
-  }, [])
+  }, [path])
 
   return (
     <Navbar width={{ base: "35vh" }} className={classes.navbar}>
@@ -79,6 +82,44 @@ export default function Menu() {
               to={item.path}
             />)}
         </Box>
+      </Navbar.Section>
+
+      <Navbar.Section style={{ margin: 20 }}>
+        <Menu shadow="md" offset={0} position="top" width={"100%"}>
+          <Menu.Target>
+            <Group
+              position="apart"
+              sx={{
+                "&:hover": {
+                  cursor: "pointer"
+                }
+              }}
+            >
+              <Group>
+                <Avatar color="dark" radius="xl">{profile.firstName[0] + profile.lastName[0]}</Avatar>
+
+                <Stack style={{ gap: 0 }}>
+                  <Text style={{ color: "black" }}>
+                    {profile.firstName + " " + profile.lastName}
+                  </Text>
+
+                  <Text>{profile.email}</Text>
+                </Stack>
+              </Group>
+
+              <FiChevronRight size={20} color="gray" />
+            </Group>
+          </Menu.Target>
+
+          <Menu.Dropdown>
+            <Menu.Item
+              icon={<FiX size={16} color={"gray"} />}
+              onClick={() => clearStore()}
+            >
+              Se déconnecter
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
       </Navbar.Section>
     </Navbar>
   )

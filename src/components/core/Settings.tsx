@@ -5,8 +5,10 @@ import { FiSend, FiCheck, FiX, FiInfo } from 'react-icons/fi';
 import { useTranslation } from "react-i18next";
 import { Action, ActionStatus, OperationType } from "../../types";
 import { useActionService, useGenerationsConfigService } from "../../services";
+import { useNavigate } from "react-router-dom";
 
 export default function Settings() {
+  const navigate = useNavigate()
   const { t } = useTranslation();
   const { classes } = useStyles();
   const { getActions, editAction, addAction } = useActionService();
@@ -65,17 +67,11 @@ export default function Settings() {
           </Menu.Target>
 
           <Menu.Dropdown>
-            <Menu.Item icon={<FiSend size={16} />}>
-              Envoyer un message
-            </Menu.Item>
-            <Menu.Item icon={<FiCheck size={16} />}>
+            <Menu.Item
+              icon={<FiCheck size={16} />}
+              onClick={() => navigate("/transactions?action=" + action._id)}
+            >
               Afficher les transactions
-            </Menu.Item>
-            <Menu.Item icon={<FiInfo size={16} style={{ transform: "rotate(180deg)" }} />}>
-              Envoyer un avertissement
-            </Menu.Item>
-            <Menu.Item icon={<FiX size={16} color="red" />}>
-              <Text style={{ color: "red" }}>{"Bannir l'utilisateur"}</Text>
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>

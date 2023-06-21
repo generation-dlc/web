@@ -2,7 +2,7 @@ import { AppShell, createStyles, ScrollArea } from "@mantine/core";
 import "@szhsin/react-menu/dist/core.css";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useClearStore } from "../../store";
-import Menu from "../core/Menu";
+import Menu from "../core/MenuApp";
 
 export default function AppLayout() {
   const clearStore = useClearStore();
