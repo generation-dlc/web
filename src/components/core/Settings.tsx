@@ -3,7 +3,7 @@ import { createStyles, Group, Stack, Text, Pagination, ActionIcon, Title, Select
 import { BsPencil, BsThreeDots } from 'react-icons/bs';
 import { FiSend, FiCheck, FiX, FiInfo } from 'react-icons/fi';
 import { useTranslation } from "react-i18next";
-import { Action, ActionStatus, OperationType } from "../../types";
+import { Action, ActionStatus, ActionTypeType, OperationType } from "../../types";
 import { useActionService, useGenerationsConfigService } from "../../services";
 import { useNavigate } from "react-router-dom";
 
@@ -19,6 +19,7 @@ export default function Settings() {
   const [showEditActionModal, setShowEditActionModal] = useState<boolean>(false)
   const [selectedAction, setSelectedAction] = useState<Action | any>()
   const [generationConfig, setGenerationConfig] = useState<any>([])
+  const [nbLevels, setNbLevels] = useState<number>(0)
 
   useEffect(() => {
     getActions({
@@ -28,13 +29,23 @@ export default function Settings() {
 
     getGenerationsConfig({
       error: console.error,
-      success: (res) => setGenerationConfig(res)
+      success: (res) => {
+        setGenerationConfig(res)
+        setNbLevels(Object.keys(res).length)
+      }
     })
   }, [])
 
   const rows = actions.map((action) => (
     <tr key={action._id} style={{ position: "relative" }}>
-      <td>{action.title}</td>
+      <td>
+        <Group>
+          <Text style={{ color: "black" }}>
+            {action.title}
+          </Text>
+          {action.type === ActionTypeType.SYSTEM && <Badge color="gray">SYSTEM</Badge>}
+        </Group>
+      </td>
       <td>
         <Badge color={action.operationType === OperationType.ADD ? "blue" : "red"}>
           {action.operationType === OperationType.ADD ? "CREDIT" : "DEBIT"}
@@ -79,6 +90,7 @@ export default function Settings() {
     </tr>
   ));
 
+
   const rowsLevels = Object.keys(generationConfig).map((level: any, index: number) =>
     <tr key={index} style={{ position: "relative" }}>
       <td><Text>Niveau #{index + 1}</Text></td>
@@ -87,15 +99,18 @@ export default function Settings() {
           ? <TextInput
             size="xs"
             id="nbUsers"
-            value={generationConfig[level].nbUsers}
+            value={generationConfig[level]?.nbUsers || 0}
             onChange={(event) => {
+              if (!generationConfig[level])
+                generationConfig[level] = {
+                  nbUsers: 0,
+                  commission: 0,
+                  maxAffiliatedUsers: 0
+                }
+
               // @ts-ignore
               generationConfig[level].nbUsers = event.currentTarget.value
-
-              editGenerationsConfig({
-                error: console.error,
-                success: (res) => setGenerationConfig({ ...generationConfig })
-              }, generationConfig)
+              setGenerationConfig({ ...generationConfig })
             }}
           />
           : "-"}
@@ -104,15 +119,17 @@ export default function Settings() {
         <TextInput
           size="xs"
           id="maxAffiliated"
-          value={generationConfig[level].maxAffiliatedUsers}
+          value={generationConfig[level]?.maxAffiliatedUsers || 0}
           onChange={(event) => {
+            if (!generationConfig[level])
+              generationConfig[level] = {
+                nbUsers: 0,
+                commission: 0,
+                maxAffiliatedUsers: 0
+              }
             // @ts-ignore
             generationConfig[level].maxAffiliatedUsers = event.currentTarget.value
-
-            editGenerationsConfig({
-              error: console.error,
-              success: (res) => setGenerationConfig({ ...generationConfig })
-            }, generationConfig)
+            setGenerationConfig({ ...generationConfig })
           }}
         />
       </td>
@@ -120,15 +137,17 @@ export default function Settings() {
         <TextInput
           size="xs"
           id="commission"
-          value={generationConfig[level].commission + "%"}
+          value={generationConfig[level]?.commission || 0}
           onChange={(event) => {
+            if (!generationConfig[level])
+              generationConfig[level] = {
+                nbUsers: 0,
+                commission: 0,
+                maxAffiliatedUsers: 0
+              }
             // @ts-ignore
             generationConfig[level].commission = event.currentTarget.value
-
-            editGenerationsConfig({
-              error: console.error,
-              success: (res) => setGenerationConfig({ ...generationConfig })
-            }, generationConfig)
+            setGenerationConfig({ ...generationConfig })
           }}
         />
       </td>
@@ -261,7 +280,7 @@ export default function Settings() {
       <Paper
         p="xl"
         shadow="xs"
-        style={{ height: "100%", borderRadius: 10, borderStyle: "solid", borderWidth: 1, borderColor: "#EDF0F2", backgroundColor: "white" }}
+        style={{ display: "flex", flexDirection: "column", height: "100%", borderRadius: 10, borderStyle: "solid", borderWidth: 1, borderColor: "#EDF0F2", backgroundColor: "white" }}
       >
         {/* header */}
         <Group position="apart">
@@ -273,13 +292,26 @@ export default function Settings() {
           <Stack align="center" style={{ width: "11%", gap: 0 }}>
             <Text size="sm" style={{ color: "black" }}># Niveaux</Text>
             <Select
-              defaultValue={"4"}
-              data={[
-                { value: "1", label: "1" },
-                { value: "2", label: "2" },
-                { value: "3", label: "3" },
-                { value: "4", label: "4" },
-              ]}
+              value={nbLevels.toString()}
+              data={Array.from(Array(10).keys()).map(i => ({ value: "" + (i + 1), label: "" + (i + 1) }))}
+              onChange={(value) => {
+                setNbLevels(parseInt(value as string))
+
+                if (parseInt(value as string) < Object.keys(generationConfig).length)
+                  Object.keys(generationConfig)
+                    .slice(parseInt(value as string))
+                    .forEach(key => delete generationConfig[key])
+                else {
+                  Array.from(Array(parseInt(value as string) - Object.keys(generationConfig).length).keys())
+                    .map(i => generationConfig[Object.keys(generationConfig).length + i + 1] = {
+                      nbUsers: 0,
+                      commission: 0,
+                      maxAffiliatedUsers: 0
+                    })
+                }
+
+                setGenerationConfig({ ...generationConfig })
+              }}
             />
           </Stack>
         </Group>
@@ -296,15 +328,27 @@ export default function Settings() {
           </thead>
           <tbody>{rowsLevels}</tbody>
         </Table>
+
+        <Group position="right" style={{ height: "100%" }}>
+          <Button
+            onClick={() => {
+              editGenerationsConfig({
+                error: console.error,
+                success: (res) => setGenerationConfig(res)
+              }, generationConfig)
+            }}>
+            Sauvegarder
+          </Button>
+        </Group>
       </Paper>
     </Group>
 
-    {/* edit user modal */}
+    {/* edit action modal */}
     <Modal
       centered
       opened={showEditActionModal}
       onClose={() => setShowEditActionModal(false)}
-      title={<Title order={4}>Nouvelle Action</Title>}
+      title={<Title order={4}>{selectedAction?._id ? selectedAction.title : "Nouvelle Action"}</Title>}
       withCloseButton={false}
       styles={{ modal: { minWidth: 600 }, title: { padding: 10, paddingTop: 0 }, body: { padding: 10 } }}
       overflow="outside"

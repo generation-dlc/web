@@ -63,6 +63,12 @@ export default function Events() {
     return groupByMonth
   }
 
+  const synteticEvent = new MouseEvent("mousedown", {
+    view: window,
+    bubbles: true,
+    cancelable: true,
+  })
+
   return <div className={classes.rootContainer}>
     {/* title */}
     <Title order={2}>Evenements</Title>
@@ -122,7 +128,7 @@ export default function Events() {
             }}
             onClick={(e) => {
               // @ts-ignore
-              if (!e.target.className.includes("input")) {
+              if (!(e.target.toString().includes("SVGSVGElement") || e.target.toString().includes("HTMLInputElement"))) {
                 setSelectedEvent(event)
                 setShowEventModal(true)
               }

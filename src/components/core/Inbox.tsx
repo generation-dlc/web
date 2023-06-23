@@ -37,84 +37,7 @@ export default function Inbox() {
   const page = useRef<number>(0)
   const userPage = useRef<number>(0)
 
-  const [conversations, setConversations] = useState<any[]>([]
-    //   [
-    //   {
-    //     _id: "1",
-    //     users: [
-    //       {
-    //         _id: "1",
-    //         username: "gokugen",
-    //         firstName: "Mohamed",
-    //         lastName: "HADJADJI"
-    //       },
-    //       {
-    //         _id: "2",
-    //         username: "gokugen",
-    //         firstName: "Mohamed",
-    //         lastName: "HADJADJI"
-    //       },
-    //     ],
-    //     messages: [
-    //       {
-    //         _id: "1",
-    //         text: "Le probleme c que jsp si ca vraiment marche donc je vais tester et sinon on saura jamais du coup",
-    //         readBy: ["64926453d3812ce0d580dc56", "2"],
-    //         date: new Date().toISOString(),
-    //         createdBy: {
-    //           _id: "64926453d3812ce0d580dc56",
-    //           username: "gokugen",
-    //           firstName: "Mohamed",
-    //           lastName: "HADJADJI"
-    //         }
-    //       },
-    //       {
-    //         _id: "1",
-    //         text: "okkkkkkkkkokkkkkkkkkokkkkkkkkkokkkkkkkkkokkkkkkkkkokkkkkkkkk",
-    //         readBy: ["2"],
-    //         date: new Date().toISOString(),
-    //         createdBy: {
-    //           _id: "2",
-    //           username: "rs92",
-    //           firstName: "Daniel",
-    //           lastName: "KINFRI"
-    //         }
-    //       }
-    //     ]
-    //   },
-    //   {
-    //     _id: "1",
-    //     users: [
-    //       {
-    //         _id: "1",
-    //         username: "gokugen",
-    //         firstName: "Mohamed",
-    //         lastName: "HADJADJI"
-    //       },
-    //       {
-    //         _id: "2",
-    //         username: "gokugen",
-    //         firstName: "Mohamed",
-    //         lastName: "HADJADJI"
-    //       },
-    //     ],
-    //     messages: [
-    //       {
-    //         _id: "1",
-    //         text: "okkkkkkkkk",
-    //         readBy: ["1", "2"],
-    //         date: new Date().toISOString(),
-    //         createdBy: {
-    //           _id: "1",
-    //           username: "gokugen",
-    //           firstName: "Mohamed",
-    //           lastName: "HADJADJI"
-    //         }
-    //       }
-    //     ]
-    //   }
-    // ]
-  )
+  const [conversations, setConversations] = useState<any[]>([])
   const [messages, setMessages] = useState<any[]>([])
   const [indexClick, setIndexClick] = useState<number>(0)
   const [searchConversation, setSearchConversation] = useState<string>("")
@@ -133,6 +56,7 @@ export default function Inbox() {
     },
     onMessage: (e) => {
       const res = JSON.parse(e.data)
+      console.log(res.data)
 
       switch (res.operation) {
         case "addMessage":
@@ -149,6 +73,10 @@ export default function Inbox() {
           setIndexClick(0)
 
           viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
+          break
+        case "conversationCreated":
+          setConversations([res.data, ...conversations])
+          setIndexClick(0)
           break
         default:
           console.log(res)
@@ -173,7 +101,7 @@ export default function Inbox() {
 
     getUsers({
       error: console.error,
-      success: (res) => setUsers(res)
+      success: (res) => setUsers([...res.filter((u: User) => u._id !== profile._id)])
     })
   }, [])
 
@@ -301,6 +229,8 @@ export default function Inbox() {
               key={conversation._id}
               style={{ backgroundColor: indexClick === index ? "#FFFFFF" : "" }}
               onClick={() => {
+                setValues([])
+                setShowSearchUsers(false)
                 setIndexClick(index)
                 setMessages(conversations[index].messages)
                 viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
@@ -397,7 +327,7 @@ export default function Inbox() {
                             error: console.error,
                             success: (res) => {
                               // firstTimeUser.current = true
-                              setUsers([...users, ...res])
+                              setUsers([...users, ...res.filter((u: User) => u._id !== profile._id)])
                             }
                           }, { page: userPage.current })
                         }
@@ -514,13 +444,23 @@ export default function Inbox() {
               onClick={() => {
                 if (textMessage) {
                   if (values.length)
-                    values.forEach((obj: any) =>
-                      sendMessage(JSON.stringify({
-                        operation: "createConversation",
-                        users: [profile._id, obj.value],
-                        message: textMessage
-                      }))
-                    )
+                    values.forEach((obj: any) => {
+                      const generation = generations.find(g => obj.value)
+                      if (generation)
+                        generation.users.forEach((user: User) => {
+                          sendMessage(JSON.stringify({
+                            operation: "createConversation",
+                            users: [profile._id, user._id],
+                            message: textMessage
+                          }))
+                        });
+                      else
+                        sendMessage(JSON.stringify({
+                          operation: "createConversation",
+                          users: [profile._id, obj.value],
+                          message: textMessage
+                        }))
+                    })
                   else
                     sendMessage(JSON.stringify({
                       operation: "addMessage",

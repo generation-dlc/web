@@ -105,7 +105,8 @@ export type Action = {
   points: number;
   xp: number;
   status: ActionStatus;
-  description?: string
+  description?: string;
+  type: ActionTypeType;
 }
 
 export enum ActionStatus {
@@ -116,6 +117,11 @@ export enum ActionStatus {
 export enum OperationType {
   ADD = "ADD",
   REMOVE = "REMOVE"
+}
+
+export enum ActionTypeType {
+  SYSTEM = "SYSTEM",
+  EXTERNAL = "EXTERNAL"
 }
 
 export type Config = {
