@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createStyles, Group, Stack, Text, Pagination, ActionIcon, Title, Select, TextInput, Paper, Table, Badge, Avatar, Modal, Textarea, Button, Menu } from "@mantine/core";
+import { createStyles, Group, Stack, Text, Pagination, ActionIcon, Title, Select, TextInput, Paper, Table, Badge, Avatar, Modal, Textarea, Button, Menu, Loader, Center } from "@mantine/core";
 import { IoIosSearch } from 'react-icons/io';
 import { BsPencil, BsThreeDots } from 'react-icons/bs';
 import { FiSend, FiCheck, FiX, FiUser, FiInfo } from 'react-icons/fi';
@@ -17,6 +17,7 @@ export default function Users() {
   const { t } = useTranslation();
   const { classes } = useStyles();
 
+  const [loading, setLoading] = useState<boolean>(true)
   const [users, setUsers] = useState<User[]>([])
   const [searchText, setSearchText] = useState<string>("")
   const [userRole, setUserRole] = useState<string>("")
@@ -29,6 +30,7 @@ export default function Users() {
   useEffect(() => {
     getUsersByProperty({
       error: console.error,
+      loading: (value) => setLoading(value),
       success: (res) => {
         setUsers(res.users)
         setTotalPages(Math.ceil(res.count / 20))
@@ -168,20 +170,24 @@ export default function Users() {
       />
 
       {/* table */}
-      <Table mt={"xl"}>
-        <thead>
-          <tr>
-            <th>Utilisateur</th>
-            <th>Identifiant</th>
-            <th>Der. activité</th>
-            <th>XP</th>
-            <th>Solde</th>
-            <th>Gén.</th>
-            <th style={{ width: "15%" }}>Status</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table>
+      {loading
+        ? <Center m="xl">
+          <Loader />
+        </Center>
+        : <Table mt={"xl"}>
+          <thead>
+            <tr>
+              <th>Utilisateur</th>
+              <th>Identifiant</th>
+              <th>Der. activité</th>
+              <th>XP</th>
+              <th>Solde</th>
+              <th>Gén.</th>
+              <th style={{ width: "15%" }}>Status</th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>}
 
       {/* pagination */}
       <Group position="center" mt="xl">

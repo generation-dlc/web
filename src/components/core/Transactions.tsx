@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createStyles, Group, Stack, Text, Pagination, Title, Select, TextInput, Paper, Table, Badge, ActionIcon, Menu, Modal } from "@mantine/core";
+import { createStyles, Group, Stack, Text, Pagination, Title, Select, TextInput, Paper, Table, Badge, ActionIcon, Menu, Modal, Center, Loader } from "@mantine/core";
 import { IoIosSearch } from 'react-icons/io';
 import { BsThreeDots } from 'react-icons/bs';
 import { FiChevronUp, FiX } from 'react-icons/fi';
@@ -16,6 +16,7 @@ export default function Transactions() {
   const { getTransactionsByProperty, getTransactionCommission } = useTransactionService()
 
   // const [staffs, setStaffs] = useState<User[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
   const [searchText, setSearchText] = useState<string>("")
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [transactionType, setTransactionType] = useState<string>()
@@ -37,6 +38,7 @@ export default function Transactions() {
 
     getTransactionsByProperty({
       error: console.error,
+      loading: (value) => setLoading(value),
       success: (res) => {
         setTransactions(res.transactions)
         setTotalPages(Math.ceil(res.count / 20))
@@ -187,20 +189,25 @@ export default function Transactions() {
       />
 
       {/* table */}
-      <Table mt={"xl"}>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Libellé</th>
-            <th>Points</th>
-            <th>XP</th>
-            <th>{"Donneur d'ordre"}</th>
-            <th>Destinataire</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table>
+      {loading
+        ? <Center m="xl">
+          <Loader />
+        </Center>
+        : <Table mt={"xl"}>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Libellé</th>
+              <th>Points</th>
+              <th>XP</th>
+              <th>{"Donneur d'ordre"}</th>
+              <th>Destinataire</th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      }
 
       {/* pagination */}
       <Group position="center" mt="xl">

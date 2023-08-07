@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createStyles, Group, Stack, Text, Pagination, ActionIcon, Title, Select, TextInput, Image, Paper, Table, Badge, Avatar, Modal, Button, Textarea, Tabs, Grid } from "@mantine/core";
+import { createStyles, Group, Stack, Text, Pagination, ActionIcon, Title, Select, TextInput, Image, Paper, Table, Badge, Avatar, Modal, Button, Textarea, Tabs, Grid, Center, Loader } from "@mantine/core";
 import { IoIosSearch } from 'react-icons/io';
 import { BsPencil } from 'react-icons/bs';
 import { useTranslation } from "react-i18next";
@@ -49,6 +49,7 @@ export default function Products() {
     }
   ])
 
+  const [loading, setLoading] = useState<boolean>(true)
   const [products, setProducts] = useState<Product[]>([])
   const [page, setPage] = useState<number>(1)
   const [totalPages, setTotalPages] = useState<number>(1)
@@ -61,6 +62,7 @@ export default function Products() {
   useEffect(() => {
     getProductsByProperty({
       error: console.error,
+      loading: (value) => setLoading(value),
       success: (res) => {
         setProducts(res.products)
         setTotalPages(Math.ceil(res.count / 20))
@@ -181,20 +183,25 @@ export default function Products() {
       />
 
       {/* table */}
-      <Table mt={"xl"}>
-        <thead>
-          <tr>
-            <th>Titre</th>
-            <th>Sponsor</th>
-            <th>Points</th>
-            <th>XP</th>
-            <th>Période</th>
-            <th>Dispo</th>
-            <th style={{ width: "15%" }}>Status</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table>
+      {loading
+        ? <Center m="xl">
+          <Loader />
+        </Center>
+        : <Table mt={"xl"}>
+          <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Sponsor</th>
+              <th>Points</th>
+              <th>XP</th>
+              <th>Période</th>
+              <th>Dispo</th>
+              <th style={{ width: "15%" }}>Status</th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      }
 
       {/* pagination */}
       <Group position="center" mt="xl">
