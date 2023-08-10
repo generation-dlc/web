@@ -173,6 +173,20 @@ export default function Generations() {
   </>
 }
 
+function calculXp(user: User, generations: any): number {
+  if (!user)
+    return 0
+
+  return user
+    .affiliatedUsers
+    .map((affiliatedUserId: string) => {
+      const u = generations
+        .find((g: any) => g._id === user.generation)?.users.find((u: User) => u._id === affiliatedUserId)
+      return calculXp(u, generations) + (u?.xp || 0)
+    })
+    .reduce((accumulator, currentValue) => accumulator + currentValue, 0)
+}
+
 const Item = ({ user, generations }: { user: User, generations: any }) => {
   const [close, setClose] = useState(true)
 
@@ -210,18 +224,9 @@ const Item = ({ user, generations }: { user: User, generations: any }) => {
               </Group>
             </Stack>
 
-            {/* TO DO get all xp of affiliated user and their childs*/}
             <Stack align="center" style={{ gap: 0 }}>
               <Text weight="bold" style={{ color: "black" }}>
-                {
-                  user
-                    .affiliatedUsers
-                    .map((affiliatedUserId: string) =>
-                      generations
-                        .find((g: any) => g._id === user.generation)?.users.find((u: User) => u._id === affiliatedUserId)?.xp
-                    )
-                    .reduce((accumulator, currentValue) => accumulator + currentValue, 0)
-                }
+                {calculXp(user, generations)}
               </Text>
               <Group style={{ gap: 0 }}>
                 <Text size="sm">XP</Text>
