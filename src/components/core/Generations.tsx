@@ -5,7 +5,7 @@ import "@szhsin/react-menu/dist/core.css";
 import 'rc-rate/assets/index.css';
 import { useTranslation } from "react-i18next";
 import { User } from "../../types";
-import { FiUser, FiPlus } from "react-icons/fi";
+import { FiUser, FiPlus, FiX } from "react-icons/fi";
 import { IoIosGitNetwork } from "react-icons/io";
 import { useGenerationService, useServiceService } from "../../services";
 
@@ -31,65 +31,6 @@ export default function Generations() {
       success: (res) => setLeaders(res)
     })
   }, [])
-
-  const item = (user: User) => user
-    ? <Accordion.Item value={user._id}>
-      {/* info */}
-      <Accordion.Control>
-        <Group position="apart">
-          <Group>
-            <Avatar color="blue" radius="sm" size="lg">
-              <Text style={{ color: "black" }}>
-                {user.firstName[0] + user.lastName[0]}
-              </Text>
-            </Avatar>
-            <Stack style={{ gap: 0 }}>
-              <Text style={{ color: "black" }}>{user.firstName + " " + user.lastName}</Text>
-              <Text size="sm">Niveau {user.level}</Text>
-            </Stack>
-          </Group>
-
-          <Group style={{ gap: 60 }}>
-            <Stack align="center" style={{ gap: 0 }}>
-              <Text weight="bold" style={{ color: "black" }}>{user.affiliatedUsers.length}</Text>
-              <Text size="sm">Affiliés</Text>
-            </Stack>
-
-            <Stack align="center" style={{ gap: 0 }}>
-              <Text weight="bold" style={{ color: "black" }}>{user.xp}</Text>
-              <Group style={{ gap: 0 }}>
-                <Text size="sm">XP</Text>
-                <FiUser size={14} color="#C9CACC" />
-              </Group>
-            </Stack>
-
-            {/* TO DO get all xp of affiliated user and their childs*/}
-            <Stack align="center" style={{ gap: 0 }}>
-              <Text weight="bold" style={{ color: "black" }}>
-                {
-                  user.affiliatedUsers
-                    .map((affiliatedUserId: string) => generations.find(generation => generation._id === user.generation)?.users.find((u: User) => u._id === affiliatedUserId)?.xp)
-                    .reduce((accumulator, currentValue) => accumulator + currentValue, 0)
-                }
-              </Text>
-              <Group style={{ gap: 0 }}>
-                <Text size="sm">XP</Text>
-                <IoIosGitNetwork size={14} color="#C9CACC" style={{ transform: "rotate(180deg)" }} />
-              </Group>
-            </Stack>
-          </Group>
-        </Group>
-      </Accordion.Control>
-
-      {/* next users */}
-      <Accordion.Panel>
-        {user.affiliatedUsers.map(id => <div key={id as any}>
-          {/* @ts-ignore */}
-          {item(generations.find(generation => generation._id === user.generation).users.find((u: User) => u._id === id))}
-        </div>)}
-      </Accordion.Panel>
-    </Accordion.Item>
-    : <></>
 
   return <>
     <div className={classes.rootContainer}>
@@ -117,10 +58,9 @@ export default function Generations() {
                 <Accordion
                   variant="filled"
                   chevronPosition="left"
-                  chevron={<FiPlus size={20} />}
                   defaultValue={generation.users.filter((u: User) => u.affiliatedUsers.length).map((u: User) => u._id)}
                 >
-                  {item(generation.users[0])}
+                  <Item user={generation.users[0] as any} generations={generations} />
                 </Accordion>
               </Paper>
             )}
@@ -210,9 +150,16 @@ export default function Generations() {
 
         {/* new button */}
         <Group position="right" mt="lg">
-          <Button color="red" onClick={() => setShowCreatGenerationModal(false)}>
+          <Text
+            style={{ color: "black" }}
+            sx={{
+              "&:hover": {
+                cursor: "pointer"
+              }
+            }}
+            onClick={() => setShowCreatGenerationModal(false)}>
             Annuler
-          </Button>
+          </Text>
 
           <Button onClick={() => emails.length && sendEmails({
             error: console.error,
@@ -224,6 +171,76 @@ export default function Generations() {
       </Modal>
     </div>
   </>
+}
+
+const Item = ({ user, generations }: { user: User, generations: any }) => {
+  const [close, setClose] = useState(true)
+
+  return user
+    ? <Accordion.Item value={user._id}>
+      {/* info */}
+      <Accordion.Control
+        chevron={close ? <FiX size={16} /> : <FiPlus size={20} />}
+        onClick={() => setClose(!close)}
+      >
+        <Group position="apart">
+          <Group>
+            <Avatar color="blue" radius="sm" size="lg">
+              <Text style={{ color: "black" }}>
+                {user.firstName[0] + user.lastName[0]}
+              </Text>
+            </Avatar>
+            <Stack style={{ gap: 0 }}>
+              <Text style={{ color: "black" }}>{user.firstName + " " + user.lastName}</Text>
+              <Text size="sm">Niveau {user.level}</Text>
+            </Stack>
+          </Group>
+
+          <Group style={{ gap: 60 }}>
+            <Stack align="center" style={{ gap: 0 }}>
+              <Text weight="bold" style={{ color: "black" }}>{user.affiliatedUsers.length}</Text>
+              <Text size="sm">Affiliés</Text>
+            </Stack>
+
+            <Stack align="center" style={{ gap: 0 }}>
+              <Text weight="bold" style={{ color: "black" }}>{user.xp}</Text>
+              <Group style={{ gap: 0 }}>
+                <Text size="sm">XP</Text>
+                <FiUser size={14} color="#C9CACC" />
+              </Group>
+            </Stack>
+
+            {/* TO DO get all xp of affiliated user and their childs*/}
+            <Stack align="center" style={{ gap: 0 }}>
+              <Text weight="bold" style={{ color: "black" }}>
+                {
+                  user
+                    .affiliatedUsers
+                    .map((affiliatedUserId: string) =>
+                      generations
+                        .find((g: any) => g._id === user.generation)?.users.find((u: User) => u._id === affiliatedUserId)?.xp
+                    )
+                    .reduce((accumulator, currentValue) => accumulator + currentValue, 0)
+                }
+              </Text>
+              <Group style={{ gap: 0 }}>
+                <Text size="sm">XP</Text>
+                <IoIosGitNetwork size={14} color="#C9CACC" style={{ transform: "rotate(180deg)" }} />
+              </Group>
+            </Stack>
+          </Group>
+        </Group>
+      </Accordion.Control>
+
+      {/* next users */}
+      <Accordion.Panel>
+        {user.affiliatedUsers.map(id => <div key={id as any}>
+          {/* @ts-ignore */}
+          <Item user={generations?.find(generation => generation._id === user.generation).users.find((u: User) => u._id === id)} generations={generations} />
+        </div>)}
+      </Accordion.Panel>
+    </Accordion.Item>
+    : <></>
 }
 
 const useStyles = createStyles(theme => ({

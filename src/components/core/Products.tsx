@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { createStyles, Group, Stack, Text, Pagination, ActionIcon, Title, Select, TextInput, Image, Paper, Table, Badge, Avatar, Modal, Button, Textarea, Tabs, Grid, Center, Loader } from "@mantine/core";
+import { createStyles, Group, Stack, Text, Pagination, ActionIcon, Title, Select, TextInput, Image, Paper, Table, Badge, Avatar, Modal, Button, Textarea, Tabs, Grid, Center, Loader, Menu } from "@mantine/core";
 import { IoIosSearch } from 'react-icons/io';
-import { BsPencil } from 'react-icons/bs';
+import { BsPencil, BsThreeDots } from 'react-icons/bs';
 import { useTranslation } from "react-i18next";
 import { DateRangePicker } from '@mantine/dates';
 import { Product, ProductStatus, UserRoles, Transaction, TransactionType } from "../../types";
@@ -13,7 +13,7 @@ import { useProductService, useTransactionService } from "../../services";
 export default function Products() {
   const { t } = useTranslation();
   const { classes } = useStyles();
-  const { getProductsByProperty, addProduct, editProduct } = useProductService()
+  const { getProductsByProperty, addProduct, editProduct, removeProduct } = useProductService()
   const { getTransactions } = useTransactionService()
 
   const transactions: any = useRef([
@@ -58,6 +58,8 @@ export default function Products() {
   const [showEditProductModal, setShowEditProductModal] = useState<Product | any>()
   const [selectedProduct, setSelectedProduct] = useState<Product | any>()
   const [rowsTransaction, setRowsTransaction] = useState([])
+
+  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false)
 
   useEffect(() => {
     getProductsByProperty({
@@ -109,6 +111,27 @@ export default function Products() {
         <ActionIcon variant="transparent" onClick={() => { setSelectedProduct(product); setShowEditProductModal(true) }}>
           <BsPencil size={12} color="black" />
         </ActionIcon>
+
+        <Menu shadow="md" offset={0} position="bottom-end">
+          <Menu.Target>
+            <ActionIcon variant="transparent">
+              <BsThreeDots size={12} color="black" />
+            </ActionIcon>
+          </Menu.Target>
+
+          <Menu.Dropdown>
+            <Menu.Item
+              icon={<FiX size={16} color={"red"} />}
+              onClick={() => {
+                setSelectedProduct(product)
+                setShowDeleteConfirmationModal(true)
+              }}>
+              <Text style={{ color: "red" }}>
+                Supprimer le produit
+              </Text>
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
       </Group>}
     </tr>
   ));
@@ -154,7 +177,7 @@ export default function Products() {
       </Group>
 
       <Group>
-        <Text
+        {/* <Text
           style={{ color: "#3C8CE4" }}
           sx={{
             "&:hover": {
@@ -164,7 +187,7 @@ export default function Products() {
           onClick={() => { }}
         >
           Exporter
-        </Text>
+        </Text> */}
         <Button onClick={() => { setSelectedProduct({}); setShowEditProductModal(true) }}>Nouveau</Button>
       </Group>
     </Group>
@@ -305,6 +328,54 @@ export default function Products() {
           }}
         >
           Sauvegarder
+        </Button>
+      </Group>
+    </Modal>
+
+    {/* delete confirmation modal */}
+    <Modal
+      opened={showDeleteConfirmationModal}
+      onClose={() => setShowDeleteConfirmationModal(false)}
+      title={<Title order={4}>{"Etes-vous sur de vouloir supprimer ce produit ?"}</Title>}
+      withCloseButton={false}
+      styles={{ modal: { minWidth: 600 }, title: { padding: 10, paddingTop: 0 }, body: { padding: 10 } }}
+      overflow="outside"
+    >
+      {/* close button */}
+      <ActionIcon
+        variant="transparent"
+        style={{ position: "absolute", top: "3%", right: "3%" }}
+        onClick={() => setShowDeleteConfirmationModal(false)}
+      >
+        <FiX size={18} color="gray" />
+      </ActionIcon>
+
+
+      {/* action buttons */}
+      <Group position="right" mt="xl">
+        <Text
+          style={{ color: "black" }}
+          sx={{
+            "&:hover": {
+              cursor: "pointer"
+            }
+          }}
+          onClick={() => setShowDeleteConfirmationModal(false)}
+        >
+          Annuler
+        </Text>
+        <Button
+          color="red"
+          onClick={() => removeProduct({
+            error: console.error,
+            success: (res) => {
+              products.splice(products.map(p => p._id).indexOf(res._id), 1)
+              setProducts([...products])
+              setShowDeleteConfirmationModal(false)
+            }
+          }, selectedProduct._id)
+          }>
+          Supprimer
         </Button>
       </Group>
     </Modal>

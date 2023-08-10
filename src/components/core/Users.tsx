@@ -143,7 +143,7 @@ export default function Users() {
         />
       </Group>
 
-      <Text
+      {/* <Text
         style={{ color: "#3C8CE4" }}
         sx={{
           "&:hover": {
@@ -153,7 +153,7 @@ export default function Users() {
         onClick={() => { }}
       >
         Exporter
-      </Text>
+      </Text> */}
     </Group>
 
     {/* body */}

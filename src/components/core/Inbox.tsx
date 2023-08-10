@@ -65,9 +65,10 @@ export default function Inbox() {
 
           setMessages([...messages, { ...res.data.message, createdBy: profile }])
 
-          conversations[indexClick].messages.push(res.data.message)
-          const tmp = { ...conversations[indexClick] }
-          conversations.splice(indexClick, 1)
+          const convIndex = conversations.map(c => c._id).indexOf(res.data.conversation._id)
+          conversations[convIndex].messages.push(res.data.message)
+          const tmp = { ...conversations[convIndex] }
+          conversations.splice(convIndex, 1)
           conversations.unshift(tmp)
           setConversations([...conversations])
           setIndexClick(0)

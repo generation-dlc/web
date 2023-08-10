@@ -11,7 +11,7 @@ export default function Settings() {
   const navigate = useNavigate()
   const { t } = useTranslation();
   const { classes } = useStyles();
-  const { getActions, editAction, addAction } = useActionService();
+  const { getActions, editAction, addAction, removeAction } = useActionService();
   const { getGenerationsConfig, editGenerationsConfig } = useGenerationsConfigService()
 
   const [actions, setActions] = useState<Action[]>([])
@@ -20,6 +20,8 @@ export default function Settings() {
   const [selectedAction, setSelectedAction] = useState<Action | any>()
   const [generationConfig, setGenerationConfig] = useState<any>([])
   const [nbLevels, setNbLevels] = useState<number>(0)
+  const [saveConfigLoading, setSaveConfigLoading] = useState(false)
+  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false)
 
   useEffect(() => {
     getActions({
@@ -84,10 +86,20 @@ export default function Settings() {
             >
               Afficher les transactions
             </Menu.Item>
+            {action.type !== ActionTypeType.SYSTEM && <Menu.Item
+              icon={<FiX size={16} color={"red"} />}
+              onClick={() => {
+                setSelectedAction(action)
+                setShowDeleteConfirmationModal(true)
+              }}>
+              <Text style={{ color: "red" }}>
+                {"Supprimer l'action"}
+              </Text>
+            </Menu.Item>}
           </Menu.Dropdown>
         </Menu>
       </Group>}
-    </tr>
+    </tr >
   ));
 
 
@@ -331,9 +343,12 @@ export default function Settings() {
 
         <Group position="right" style={{ height: "100%" }}>
           <Button
+            loading={saveConfigLoading}
+            loaderPosition="center"
             onClick={() => {
               editGenerationsConfig({
                 error: console.error,
+                loading: (value) => setSaveConfigLoading(value),
                 success: (res) => setGenerationConfig(res)
               }, generationConfig)
             }}>
@@ -447,6 +462,54 @@ export default function Settings() {
           </Button>
         </Group>
       </Stack>
+    </Modal>
+
+    {/* delete confirmation modal */}
+    <Modal
+      opened={showDeleteConfirmationModal}
+      onClose={() => setShowDeleteConfirmationModal(false)}
+      title={<Title order={4}>{"Etes-vous sur de vouloir supprimer l'action ?"}</Title>}
+      withCloseButton={false}
+      styles={{ modal: { minWidth: 600 }, title: { padding: 10, paddingTop: 0 }, body: { padding: 10 } }}
+      overflow="outside"
+    >
+      {/* close button */}
+      <ActionIcon
+        variant="transparent"
+        style={{ position: "absolute", top: "3%", right: "3%" }}
+        onClick={() => setShowDeleteConfirmationModal(false)}
+      >
+        <FiX size={18} color="gray" />
+      </ActionIcon>
+
+
+      {/* action buttons */}
+      <Group position="right" mt="xl">
+        <Text
+          style={{ color: "black" }}
+          sx={{
+            "&:hover": {
+              cursor: "pointer"
+            }
+          }}
+          onClick={() => setShowDeleteConfirmationModal(false)}
+        >
+          Annuler
+        </Text>
+        <Button
+          color="red"
+          onClick={() => removeAction({
+            error: console.error,
+            success: (res) => {
+              actions.splice(actions.map(p => p._id).indexOf(res._id), 1)
+              setActions([...actions])
+              setShowDeleteConfirmationModal(false)
+            }
+          }, selectedAction._id)
+          }>
+          Supprimer
+        </Button>
+      </Group>
     </Modal>
   </div >
 }

@@ -70,8 +70,9 @@ export const useHttp = (baseSlug = "") => {
             navigate("/sign-in", { replace: true });
           }
           else {
-            error && error({ status: err?.response?.status, ...err.response?.data });
-            loading && loading(false);
+            // console.log(error)
+            // error && error({ status: err?.response?.status, ...err.response?.data });
+            // loading && loading(false);
           }
         })
       : axiosRequest({ ...params, data: params?.payload })

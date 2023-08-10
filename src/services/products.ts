@@ -2,7 +2,7 @@ import { HttpMutators } from "./http-mutators";
 import { useHttp } from "./http";
 
 export const useProductService = () => {
-  const { post, patch } = useHttp("/products");
+  const { post, patch, remove } = useHttp("/products");
 
   return {
     getProductsByProperty: (mutators: HttpMutators, payload: any, params?: any) =>
@@ -17,6 +17,8 @@ export const useProductService = () => {
         url: `/${id}`,
         headers: { "Content-Type": "multipart/form-data" },
         payload
-      })
+      }),
+    removeProduct: (mutators: HttpMutators, id: string) =>
+      remove(mutators, { url: `/${id}` })
   }
 }

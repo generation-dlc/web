@@ -92,7 +92,7 @@ export default function Events() {
       </Group>
 
       <Group>
-        <Text
+        {/* <Text
           style={{ color: "#3C8CE4" }}
           sx={{
             "&:hover": {
@@ -102,7 +102,7 @@ export default function Events() {
           onClick={() => { }}
         >
           Exporter
-        </Text>
+        </Text> */}
         <Button onClick={() => { setSelectedEvent({}); setShowEventModal(true) }}>Nouveau</Button>
       </Group>
     </Group>
@@ -246,15 +246,18 @@ export default function Events() {
                   }}
                 />
                 <div
-                  style={{ display: "flex", alignItems: "center", borderRadius: 10, width: "100%", height: "100%", backgroundColor: selectedEvent?._id ? "" : "#C3CAD1", cursor: "pointer" }}
+                  style={{ display: "flex", justifyContent: "center", alignItems: "center", borderRadius: 10, width: "100%", height: "100%", backgroundColor: selectedEvent?._id ? "" : "#C3CAD1", cursor: "pointer" }}
                   onClick={() => inputFile.current?.click()}
                   role="presentation"
                 >
-                  <img
-                    src={selectedEvent?.imageUrl}
-                    alt={selectedEvent?.imageUrl}
-                    style={{ width: "100%", borderRadius: 10 }}
-                  />
+                  {!selectedEvent?.imageUrl
+                    ? <Text style={{ color: "black", fontSize: 30 }}>+</Text>
+                    : <img
+                      src={selectedEvent?.imageUrl}
+                      alt={selectedEvent?.imageUrl}
+                      style={{ width: "100%", borderRadius: 10 }}
+                    />
+                  }
                 </div>
               </Grid.Col>
 
