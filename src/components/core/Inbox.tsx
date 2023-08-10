@@ -63,15 +63,15 @@ export default function Inbox() {
           if (res.data.message.createdBy === profile._id)
             setTextMessage("")
 
-          setMessages([...messages, { ...res.data.message, createdBy: profile }])
-
           const convIndex = conversations.map(c => c._id).indexOf(res.data.conversation._id)
           conversations[convIndex].messages.push(res.data.message)
           const tmp = { ...conversations[convIndex] }
           conversations.splice(convIndex, 1)
           conversations.unshift(tmp)
           setConversations([...conversations])
-          setIndexClick(0)
+
+          if (convIndex === indexClick)
+            setMessages([...messages, { ...res.data.message, createdBy: res.data.message.createdBy }])
 
           viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
           break
