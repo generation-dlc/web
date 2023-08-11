@@ -148,11 +148,11 @@ export default function Inbox() {
   }
 
   const userAvatar = (user: User) => user.firstName &&
-    <Avatar color={user._id !== profile._id ? "dark" : undefined} radius="xl" style={{ zIndex: 0 }}> {user.firstName[0] + user.lastName[0]}</Avatar>
+    <Avatar color={"dark"} radius="xl" style={{ zIndex: 0 }}> {user.firstName[0] + user.lastName[0]}</Avatar>
 
-  const userMessage = (message: any) =>
-    <Paper p="md" style={{ wordBreak: "break-word", minWidth: "60%", backgroundColor: message.createdBy._id === profile._id ? "#2875DF" : "#F6F7F9" }}>
-      <Text style={{ color: message.createdBy._id === profile._id ? "white" : "black" }}>{message.text}</Text>
+  const userMessage = (message: any, boxColor: string, textColor: string) =>
+    <Paper p="md" style={{ wordBreak: "break-word", minWidth: "60%", backgroundColor: boxColor }}>
+      <Text style={{ color: textColor }}>{message.text}</Text>
     </Paper>
 
   const Value =
@@ -428,13 +428,13 @@ export default function Inbox() {
                   ? <>
                     {userAvatar(message.createdBy)}
                     <Stack spacing="xs">
-                      {userMessage(message)}
+                      {userMessage(message, "#F6F7F9", "black")}
                       <Text size="xs">{new Date(message.date).toLocaleTimeString()}</Text>
                     </Stack>
                   </>
                   : <>
                     <Stack align="flex-end" spacing="xs">
-                      {userMessage(message)}
+                      {userMessage(message, "#2875DF", "white")}
                       <Text size="xs">{format(new Date(message.date), "dd MMMM HH:mm", { locale: fr })}</Text>
                     </Stack>
 
