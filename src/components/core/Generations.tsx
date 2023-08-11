@@ -188,13 +188,13 @@ function calculXp(user: User, generations: any): number {
 }
 
 const Item = ({ user, generations }: { user: User, generations: any }) => {
-  const [close, setClose] = useState(true)
+  const [close, setClose] = useState(user?.affiliatedUsers.length ? true : false)
 
   return user
     ? <Accordion.Item value={user._id}>
       {/* info */}
       <Accordion.Control
-        chevron={close ? <FiX size={16} /> : <FiPlus size={20} />}
+        chevron={close ? <FiX size={20} /> : <FiPlus size={20} />}
         onClick={() => setClose(!close)}
       >
         <Group position="apart">

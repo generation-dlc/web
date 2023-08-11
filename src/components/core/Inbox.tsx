@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createStyles, Group, Title, Button, Paper, Stack, Text, Avatar, TextInput, ActionIcon, ScrollArea, Divider, MultiSelect, MultiSelectValueProps, CloseButton, Box } from "@mantine/core";
 import 'rc-rate/assets/index.css';
 import "@szhsin/react-menu/dist/core.css";
@@ -56,28 +56,36 @@ export default function Inbox() {
     },
     onMessage: (e) => {
       const res = JSON.parse(e.data)
-      console.log(res.data)
+      console.log(res)
+      setValues([])
 
       switch (res.operation) {
         case "addMessage":
-          if (res.data.message.createdBy === profile._id)
+          if (res.data.message.createdBy._id === profile._id)
             setTextMessage("")
 
-          const convIndex = conversations.map(c => c._id).indexOf(res.data.conversation._id)
+          const convIndex = conversations.map(c => c._id).indexOf(res.data._id)
+          if (convIndex === indexClick) {
+            setIndexClick(0)
+            setMessages([...messages, res.data.message])
+          }
+
           conversations[convIndex].messages.push(res.data.message)
           const tmp = { ...conversations[convIndex] }
           conversations.splice(convIndex, 1)
           conversations.unshift(tmp)
           setConversations([...conversations])
 
-          if (convIndex === indexClick)
-            setMessages([...messages, { ...res.data.message, createdBy: res.data.message.createdBy }])
-
           viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
           break
         case "conversationCreated":
+          if (!indexClick || res.data.messages[0].createdBy._id === profile._id) {
+            setTextMessage("")
+
+            setMessages(res.data.messages)
+            setIndexClick(0)
+          }
           setConversations([res.data, ...conversations])
-          setIndexClick(0)
           break
         default:
           console.log(res)
@@ -89,6 +97,7 @@ export default function Inbox() {
     getConversations({
       error: console.error,
       success: (res) => {
+        res.forEach((c: any) => c.messages.sort((a: any, b: any) => a.date > b.date ? 1 : -1))
         setConversations(res)
         setMessages(res[0].messages.sort((a: any, b: any) => a.date > b.date ? 1 : -1))
         viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
@@ -138,11 +147,12 @@ export default function Inbox() {
     }
   }
 
-  const userAvatar = (user: User) => <Avatar color="dark" radius="xl" style={{ zIndex: 0 }}>{user.firstName[0] + user.lastName[0]}</Avatar>
+  const userAvatar = (user: User) => user.firstName &&
+    <Avatar color={user._id !== profile._id ? "dark" : undefined} radius="xl" style={{ zIndex: 0 }}> {user.firstName[0] + user.lastName[0]}</Avatar>
 
   const userMessage = (message: any) =>
-    <Paper p="md" style={{ wordBreak: "break-word", minWidth: "60%", backgroundColor: message.createdBy === profile._id ? "#2875DF" : "#F6F7F9" }}>
-      <Text style={{ color: message.createdBy === profile._id ? "white" : "black" }}>{message.text}</Text>
+    <Paper p="md" style={{ wordBreak: "break-word", minWidth: "60%", backgroundColor: message.createdBy._id === profile._id ? "#2875DF" : "#F6F7F9" }}>
+      <Text style={{ color: message.createdBy._id === profile._id ? "white" : "black" }}>{message.text}</Text>
     </Paper>
 
   const Value =
@@ -234,7 +244,9 @@ export default function Inbox() {
                 setShowSearchUsers(false)
                 setIndexClick(index)
                 setMessages(conversations[index].messages)
-                viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
+                setTimeout(() => {
+                  viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
+                }, 0)
               }}
               p="sm"
               sx={{
@@ -282,7 +294,7 @@ export default function Inbox() {
         {/* messages list */}
         <ScrollArea
           p="xl"
-          type="scroll"
+          type="never"
           viewportRef={viewport}
           style={{ position: "relative", flex: 2, height: window.innerHeight * 0.8, borderStyle: "solid", borderWidth: 1, borderColor: "#EDF0F2", backgroundColor: "white" }}
           onScrollPositionChange={(position) => {
@@ -296,7 +308,10 @@ export default function Inbox() {
                   firstTime.current = true
                   setMessages([...messages, ...res].sort(((a: any, b: any) => a.date > b.date ? 1 : -1)))
                 }
-              }, conversations[indexClick]._id, { page: page.current })
+              },
+                conversations[indexClick]._id,
+                { page: page.current }
+              )
             }
           }}
         >
@@ -446,7 +461,7 @@ export default function Inbox() {
                 if (textMessage) {
                   if (values.length)
                     values.forEach((obj: any) => {
-                      const generation = generations.find(g => obj.value)
+                      const generation = generations.find(g => g._id === obj.value)
                       if (generation)
                         generation.users.forEach((user: User) => {
                           sendMessage(JSON.stringify({
@@ -454,7 +469,7 @@ export default function Inbox() {
                             users: [profile._id, user._id],
                             message: textMessage
                           }))
-                        });
+                        })
                       else
                         sendMessage(JSON.stringify({
                           operation: "createConversation",
