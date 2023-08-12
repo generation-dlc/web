@@ -23,6 +23,7 @@ export default function Events() {
   const [showEventModal, setShowEventModal] = useState<boolean>(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | any>()
   const [selectedEventParticipantsRows, setSelectedEventParticipantsRows] = useState([])
+  const [selectedEventSharesRows, setSelectedEventSharesRows] = useState([])
 
   useEffect(() => {
     getEvents({
@@ -37,6 +38,12 @@ export default function Events() {
 
   useEffect(() => {
     setSelectedEventParticipantsRows(selectedEvent?.participants?.map((user: { firstName: string, lastName: string, username: string }, index: number) => (
+      <tr key={index} style={{ position: "relative" }}>
+        <td>{user.firstName + " " + user.lastName}</td>
+        <td>@{user.username}</td>
+      </tr>
+    )))
+    setSelectedEventSharesRows(selectedEvent?.sharedBy?.map((user: { firstName: string, lastName: string, username: string }, index: number) => (
       <tr key={index} style={{ position: "relative" }}>
         <td>{user.firstName + " " + user.lastName}</td>
         <td>@{user.username}</td>
@@ -342,7 +349,13 @@ export default function Events() {
 
         {/* event shares */}
         <Tabs.Panel value="shares" pt="xl">
-
+          <thead>
+            <tr>
+              <th>Utilisateur</th>
+              <th>Identifiant</th>
+            </tr>
+          </thead>
+          <tbody>{selectedEventSharesRows}</tbody>
         </Tabs.Panel>
 
         {/* action buttons */}
