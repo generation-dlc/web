@@ -73,11 +73,18 @@ export type Product = {
   status: ProductStatus,
   imageUrl: string,
   description?: string
+  category?: ProductCategory
 }
 
 export enum ProductStatus {
   ON = "ON",
   DRAFT = "DRAFT"
+}
+
+export enum ProductCategory {
+  TRIP = "TRIP",
+  DRINK = "DRINK",
+  OTHERS = "OTHERS"
 }
 
 export type Event = {

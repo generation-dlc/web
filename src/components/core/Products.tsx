@@ -4,7 +4,7 @@ import { IoIosSearch } from 'react-icons/io';
 import { BsPencil, BsThreeDots } from 'react-icons/bs';
 import { useTranslation } from "react-i18next";
 import { DateRangePicker } from '@mantine/dates';
-import { Product, ProductStatus, UserRoles, Transaction, TransactionType } from "../../types";
+import { Product, ProductStatus, UserRoles, Transaction, TransactionType, ProductCategory } from "../../types";
 import format from "date-fns/format";
 import { firstLetterUpperCase } from "../../utils";
 import { FiX } from "react-icons/fi";
@@ -415,15 +415,18 @@ const ProductInfo = (props: { selectedProduct: Product; onSelectedProductChange:
           }}
         />
         <div
-          style={{ display: "flex", alignItems: "center", borderRadius: 10, width: "100%", height: "100%", backgroundColor: props.selectedProduct?._id ? "" : "#C3CAD1", cursor: "pointer" }}
+          style={{ display: "flex", justifyContent: "center", alignItems: "center", borderRadius: 10, width: "100%", height: "100%", backgroundColor: props.selectedProduct?._id ? "" : "#C3CAD1", cursor: "pointer" }}
           onClick={() => inputFile.current?.click()}
           role="presentation"
         >
-          <img
-            src={props.selectedProduct?.imageUrl}
-            alt={props.selectedProduct?.imageUrl}
-            style={{ width: "100%", borderRadius: 10 }}
-          />
+          {!props.selectedProduct?.imageUrl
+            ? <Text style={{ color: "black", fontSize: 30 }}>+</Text>
+            : <img
+              src={props.selectedProduct?.imageUrl}
+              alt={props.selectedProduct?.imageUrl}
+              style={{ width: "100%", borderRadius: 10 }}
+            />
+          }
         </div>
       </Grid.Col>
 
@@ -438,14 +441,26 @@ const ProductInfo = (props: { selectedProduct: Product; onSelectedProductChange:
           />
           <Select
             required
-            placeholder="Type de transaction"
-            label="Type"
+            placeholder="Status"
+            label="Status"
             data={[
               { value: ProductStatus.ON, label: "Actif" },
               { value: ProductStatus.DRAFT, label: "Brouillon" }
             ]}
             value={props.selectedProduct?.status}
             onChange={(value) => props.onSelectedProductChange({ ...props.selectedProduct, status: value })}
+          />
+          <Select
+            required
+            placeholder="Categorie"
+            label="Categorie"
+            data={[
+              { value: ProductCategory.DRINK, label: "Boissons" },
+              { value: ProductCategory.TRIP, label: "Voyages" },
+              { value: ProductCategory.OTHERS, label: "Autres" }
+            ]}
+            value={props.selectedProduct?.category}
+            onChange={(value) => props.onSelectedProductChange({ ...props.selectedProduct, category: value })}
           />
         </Stack>
       </Grid.Col>
