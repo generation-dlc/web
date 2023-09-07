@@ -34,6 +34,7 @@ function Home() {
                 size="xl"
                 leftIcon={<AiFillApple size={20} />}
                 style={{ borderRadius: 100, backgroundColor: "black" }}
+                onClick={() => window.open("https://apps.apple.com/us/app/generation-dlc/id6451407209")}
               >
                 App Store
               </Button>
@@ -41,6 +42,7 @@ function Home() {
                 size="xl"
                 leftIcon={<FaGooglePlay size={15} />}
                 style={{ borderRadius: 100, backgroundColor: "black" }}
+                onClick={() => window.open("https://play.google.com/store/apps/details?id=com.generation")}
               >
                 Play Store
               </Button>
