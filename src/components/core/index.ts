@@ -9,3 +9,4 @@ export { default as Products } from "./Products";
 export { default as Events } from "./Events";
 export { default as Settings } from "./Settings";
 export { default as Home } from "./Home";
+export { default as Redirection } from "./Redirection";

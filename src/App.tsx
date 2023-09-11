@@ -4,7 +4,7 @@ import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { fr, en } from "./translations";
-import { Generations, AskEmail, ResetPassword, Maintenance, Users, Inbox, Transactions, Products, Events, Settings, Home } from "./components/core";
+import { Generations, AskEmail, ResetPassword, Maintenance, Users, Inbox, Transactions, Products, Events, Settings, Home, Redirection } from "./components/core";
 import BaseLayout from "./components/layouts/BaseLayout";
 import SignIn from "./components/authentication/SignIn";
 import { useUserService } from "./services";
@@ -89,6 +89,7 @@ function App() {
             </Route>
             <Route element={<BaseLayout />}>
               <Route path="/installation" element={<Home />} />
+              <Route path="/redirection/:code" element={<Redirection />} />
             </Route>
             <Route path="*" element={<Navigate to="/sign-in" replace />} />
           </>
