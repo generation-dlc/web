@@ -68,7 +68,7 @@ export default function CustomPasswordInput({ withRules, ...props }: PasswordInp
   return withRules
     ? <Popover
       opened={popoverOpened}
-      position="bottom-start"
+      // position="bottom-start"
       withArrow
       radius="lg"
       styles={{ dropdown: { width: "100%" }, arrow: { left: "20px !important" } }}

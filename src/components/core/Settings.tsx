@@ -72,7 +72,7 @@ export default function Settings() {
           <BsPencil size={12} color="black" />
         </ActionIcon>
 
-        <Menu shadow="md" offset={0} position="bottom-end">
+        <Menu shadow="md" offset={0}>
           <Menu.Target>
             <ActionIcon variant="transparent">
               <BsThreeDots size={12} color="black" />

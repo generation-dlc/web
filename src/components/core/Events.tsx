@@ -93,6 +93,7 @@ export default function Events() {
         />
 
         <DateRangePicker
+          dropdownPosition="bottom-start"
           placeholder="Date de ... à"
           onChange={setSelectedRangeDate}
         />
@@ -134,8 +135,9 @@ export default function Events() {
               }
             }}
             onClick={(e) => {
+              console.log(e.target.toString())
               // @ts-ignore
-              if (!(e.target.toString().includes("SVGSVGElement") || e.target.toString().includes("HTMLInputElement"))) {
+              if (!(e.target.toString().includes("SVG") || e.target.toString().includes("HTMLInputElement"))) {
                 setSelectedEvent(event)
                 setShowEventModal(true)
               }

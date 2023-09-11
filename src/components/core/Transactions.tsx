@@ -85,7 +85,7 @@ export default function Transactions() {
         </Stack>
       </td>
       {<Group style={{ position: "absolute", right: 10, top: 15, gap: 0 }}>
-        <Menu shadow="md" offset={0} position="bottom-end">
+        <Menu shadow="md" offset={0}>
           <Menu.Target>
             <ActionIcon variant="transparent">
               <BsThreeDots size={12} color="black" />

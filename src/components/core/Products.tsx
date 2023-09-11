@@ -112,7 +112,7 @@ export default function Products() {
           <BsPencil size={12} color="black" />
         </ActionIcon>
 
-        <Menu shadow="md" offset={0} position="bottom-end">
+        <Menu shadow="md" offset={0}>
           <Menu.Target>
             <ActionIcon variant="transparent">
               <BsThreeDots size={12} color="black" />
@@ -500,8 +500,9 @@ const ProductInfo = (props: { selectedProduct: Product; onSelectedProductChange:
     </Grid >
 
     {/* available && stock */}
-    < Group position="apart" grow >
+    <Group position="apart" grow>
       <DateRangePicker
+        dropdownPosition="bottom-start"
         label="Disponibilité"
         placeholder="Pick dates range"
         // @ts-ignore

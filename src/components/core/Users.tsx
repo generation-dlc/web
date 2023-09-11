@@ -68,7 +68,7 @@ export default function Users() {
           <BsPencil size={12} color="black" />
         </ActionIcon>
 
-        <Menu shadow="md" offset={0} position="bottom-end">
+        <Menu shadow="md" offset={0}>
           <Menu.Target>
             <ActionIcon variant="transparent">
               <BsThreeDots size={12} color="black" />
@@ -104,7 +104,7 @@ export default function Users() {
               <Text style={{ color: user.status === UserStatus.ON ? "red" : "blue" }}>
                 {user.status === UserStatus.ON
                   ? "Bannir l'utilisateur"
-                  : "Réactiviter l'utilisateur"
+                  : "Activiter l'utilisateur"
                 }
               </Text>
             </Menu.Item>
