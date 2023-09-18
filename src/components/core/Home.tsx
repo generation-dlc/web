@@ -65,7 +65,7 @@ const ImagePresentation = () => {
   return <Paper style={{ display: "flex", justifyContent: "center", flex: 1, backgroundColor: "#1A1224" }}>
     <img
       alt="presentation"
-      src="https://lh3.googleusercontent.com/drive-viewer/AITFw-yDxW1j8GYgp8c0NyHiQcuTu6L4cIJEsdOObT3PT54prTnrG55vxUtjQlrl4Vc50_gcfUKhZ83BIpEydaWExxV3SfuCBw=s1600"
+      src="https://i.ibb.co/FgVxnqd/image-7.png"
       width={isMobile ? "100%" : "47%"}
       style={{ justifyContent: "center" }}
     />

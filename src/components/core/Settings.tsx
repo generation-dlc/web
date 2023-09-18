@@ -43,7 +43,7 @@ export default function Settings() {
       <td>
         <Group>
           <Text style={{ color: "black" }}>
-            {action.title}
+            {action.title === "Referral" ? "Parrainage" : action.title}
           </Text>
           {action.type === ActionTypeType.SYSTEM && <Badge color="gray">SYSTEM</Badge>}
         </Group>

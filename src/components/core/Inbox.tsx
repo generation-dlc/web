@@ -20,6 +20,7 @@ import { useToken } from "../../store/reducers/auth-reducer";
 import { IoIosGitNetwork } from "react-icons/io";
 import { FiSend } from "react-icons/fi";
 import { firstLetterUpperCase } from "../../utils";
+import { useLocation } from "react-router-dom";
 
 export default function Inbox() {
   const { t } = useTranslation();
@@ -30,6 +31,8 @@ export default function Inbox() {
   const { getGenerations } = useGenerationService()
   const { getUsers } = useUserService()
 
+  const { state } = useLocation()
+
   const viewport = useRef<HTMLDivElement>(null);
   const viewportUsers = useRef<HTMLDivElement>(null);
   const firstTime = useRef<boolean>(true)
@@ -39,13 +42,13 @@ export default function Inbox() {
 
   const [conversations, setConversations] = useState<any[]>([])
   const [messages, setMessages] = useState<any[]>([])
-  const [indexClick, setIndexClick] = useState<number>(0)
+  const [indexClick, setIndexClick] = useState<number | undefined>(state?._id ? undefined : 0)
   const [searchConversation, setSearchConversation] = useState<string>("")
   const [textMessage, setTextMessage] = useState<string>("")
-  const [showSearchUsers, setShowSearchUsers] = useState<boolean>(false)
+  const [showSearchUsers, setShowSearchUsers] = useState<boolean>(state?._id || false)
   const [generations, setGenerations] = useState<any[]>([])
   const [users, setUsers] = useState<any[]>([])
-  const [values, setValues] = useState<any>([])
+  const [values, setValues] = useState<any>(state?._id ? [{ label: state.firstName, value: state._id }] : [])
   const [multiSelectData, setMultiSelectData] = useState<any>([])
 
   const { sendMessage } = useWebSocket(process.env.REACT_APP_WS_URL as string, {
@@ -56,7 +59,6 @@ export default function Inbox() {
     },
     onMessage: (e) => {
       const res = JSON.parse(e.data)
-      console.log(res)
       setValues([])
 
       switch (res.operation) {
@@ -99,7 +101,7 @@ export default function Inbox() {
       success: (res) => {
         res.forEach((c: any) => c.messages.sort((a: any, b: any) => a.date > b.date ? 1 : -1))
         setConversations(res)
-        setMessages(res[0].messages.sort((a: any, b: any) => a.date > b.date ? 1 : -1))
+        setMessages(state?._id ? [] : res[0].messages.sort((a: any, b: any) => a.date > b.date ? 1 : -1))
         viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
       }
     })
@@ -111,7 +113,12 @@ export default function Inbox() {
 
     getUsers({
       error: console.error,
-      success: (res) => setUsers([...res.filter((u: User) => u._id !== profile._id)])
+      success: (res) => {
+        if (state?._id)
+          setMessages([])
+        //   console.log(res.find((u: any) => u._id === state._id))
+        setUsers(res)//[...res.filter((u: User) => u._id !== profile._id && u._id !== state?._id)])
+      }
     })
   }, [])
 
@@ -309,7 +316,7 @@ export default function Inbox() {
                   setMessages([...messages, ...res].sort(((a: any, b: any) => a.date > b.date ? 1 : -1)))
                 }
               },
-                conversations[indexClick]._id,
+                conversations[indexClick || 0]._id,
                 { page: page.current }
               )
             }
@@ -378,7 +385,7 @@ export default function Inbox() {
                   }
                 />
               else if (conversations.length) {
-                const user = conversations[indexClick].users.find((u: User) => u._id !== profile._id)
+                const user = conversations[indexClick || 0].users.find((u: User) => u._id !== profile._id)
 
                 return <Stack mx={10} style={{ width: "100%" }} spacing="xs">
                   <Group px={15}>
@@ -480,7 +487,7 @@ export default function Inbox() {
                   else
                     sendMessage(JSON.stringify({
                       operation: "addMessage",
-                      conversationId: conversations[indexClick]._id,
+                      conversationId: conversations[indexClick || 0]._id,
                       text: textMessage
                     }))
                 }

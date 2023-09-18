@@ -76,7 +76,10 @@ export default function Users() {
           </Menu.Target>
 
           <Menu.Dropdown>
-            <Menu.Item icon={<FiSend size={16} />}>
+            <Menu.Item
+              icon={<FiSend size={16} />}
+              onClick={() => navigate("/inbox", { state: { ...user } })}
+            >
               Envoyer un message
             </Menu.Item>
             <Menu.Item
