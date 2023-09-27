@@ -14,7 +14,7 @@ import { User, UserRoles } from "../../types";
 import { IoIosSearch } from "react-icons/io";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useConversationService, useGenerationService, useUserService } from "../../services";
+import { useConversationService, useGenerationsConfigService, useGenerationService, useUserService } from "../../services";
 import useWebSocket from "react-use-websocket";
 import { useToken } from "../../store/reducers/auth-reducer";
 import { IoIosGitNetwork } from "react-icons/io";
@@ -28,7 +28,7 @@ export default function Inbox() {
   const profile = useProfile();
   const token = useToken()
   const { getConversations, getConversationMessages } = useConversationService()
-  const { getGenerations } = useGenerationService()
+  const { getGenerationsConfig } = useGenerationsConfigService()
   const { getUsers } = useUserService()
 
   const { state } = useLocation()
@@ -106,9 +106,9 @@ export default function Inbox() {
       }
     })
 
-    getGenerations({
+    getGenerationsConfig({
       error: console.error,
-      success: (res) => setGenerations(res)
+      success: (res) => setGenerations(Object.keys(res).map((obj: any, index: number) => ({ value: index + 1, label: "Generation #" + (index + 1) })))
     })
 
     getUsers({
@@ -124,7 +124,7 @@ export default function Inbox() {
 
   useEffect(() => {
     setMultiSelectData([
-      ...generations.map((g: any) => ({ value: g._id, label: "Generation " + g.number })),
+      ...generations,
       ...users.map((u: any) => ({ value: u._id, label: u.firstName + " " + u.lastName + (u.generation ? " (#" + u.generation?.number + ")" : "") }))
     ])
   }, [generations, users])
@@ -189,7 +189,7 @@ export default function Inbox() {
           <CloseButton
             onClick={() => {
               setValues([...values.filter((obj: any) => obj.value !== value)])
-              if (generations.map(g => g._id).includes(value))
+              if (generations.map(g => g.value).includes(value))
                 setMultiSelectData([{ value, label }, ...multiSelectData])
               else
                 setMultiSelectData([...multiSelectData, { value, label }])
@@ -330,8 +330,8 @@ export default function Inbox() {
                   searchable
                   style={{ flex: 1 }}
                   data={[
-                    ...generations.map(generation => ({ value: generation._id, label: "Generation " + generation.number })),
-                    ...users.map(u => ({ value: u._id, label: u.firstName + " " + u.lastName }))
+                    ...generations,
+                    ...users.map(u => ({ value: u._id, label: u.firstName + " " + u.lastName + " (#" + u.level + ")" }))
                   ]}
                   value={values.map((obj: any) => obj.value)}
                   valueComponent={Value}
@@ -468,9 +468,8 @@ export default function Inbox() {
                 if (textMessage) {
                   if (values.length)
                     values.forEach((obj: any) => {
-                      const generation = generations.find(g => g._id === obj.value)
-                      if (generation)
-                        generation.users.forEach((user: User) => {
+                      if (obj.label.includes("Generation #"))
+                        users.filter(u => u.level === obj.value && u.role === UserRoles.USER).forEach((user: User) => {
                           sendMessage(JSON.stringify({
                             operation: "createConversation",
                             users: [profile._id, user._id],
@@ -484,6 +483,7 @@ export default function Inbox() {
                           message: textMessage
                         }))
                     })
+                  // already in a conversation
                   else
                     sendMessage(JSON.stringify({
                       operation: "addMessage",

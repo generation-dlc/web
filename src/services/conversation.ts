@@ -1,6 +1,5 @@
 import { HttpMutators } from "./http-mutators";
 import { useHttp } from "./http";
-import { UserRoles } from "../types";
 
 export type ChangePasswordPayload = {
   newPassword: string;
