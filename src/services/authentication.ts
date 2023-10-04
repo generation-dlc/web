@@ -17,15 +17,12 @@ export type ResetPasswordPayload = {
 }
 
 export const useAuthService = () => {
-  const { get, post } = useHttp();
+  const { post } = useHttp();
 
   return {
     signIn: (mutators: HttpMutators, payload: SignInPayload) => post(mutators, {
-      url: "/sign-in",
+      url: "/sign-in-admin",
       payload
-    }),
-    signInWithAzure: (mutators: HttpMutators) => get(mutators, {
-      url: "/sign-in-azure"
     }),
     requestPasswordReset: (mutators: HttpMutators, payload: RequestPasswordPayload) => post(mutators, {
       url: "/request-password",
