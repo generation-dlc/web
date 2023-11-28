@@ -97,6 +97,7 @@ export default function Products() {
       </td>
       <td>{product.sponsor}</td>
       <td>{product.points}</td>
+      <td>{product.price}€</td>
       <td>{product?.xp || "-"}</td>
       <td>{format(new Date(product.start), "dd/MM/yyyy") + " - " + format(new Date(product.end), "dd/MM/yyyy")}</td>
       <td>{product.stock - product.used}/{product.stock}</td>
@@ -216,6 +217,7 @@ export default function Products() {
               <th>Titre</th>
               <th>Sponsor</th>
               <th>Points</th>
+              <th>Prix</th>
               <th>XP</th>
               <th>Période</th>
               <th>Dispo</th>
@@ -485,6 +487,17 @@ const ProductInfo = (props: { selectedProduct: Product; onSelectedProductChange:
           label="Points"
           onChange={(event) => props.onSelectedProductChange({ ...props.selectedProduct, points: event.currentTarget.value })}
           value={props.selectedProduct?.points}
+        />
+      </Grid.Col>
+
+      <Grid.Col span={"auto"}>
+        <TextInput
+          required
+          id="price"
+          label="Prix"
+          placeholder="€"
+          onChange={(event) => props.onSelectedProductChange({ ...props.selectedProduct, price: event.currentTarget.value })}
+          value={props.selectedProduct?.price}
         />
       </Grid.Col>
 

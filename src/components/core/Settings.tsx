@@ -226,7 +226,7 @@ export default function Settings() {
       >
         <Stack style={{ gap: 0 }}>
           <Title order={3}>Notifications</Title>
-          <Text>Configurez les notifictions emails que vous souhaitez reçevoir</Text>
+          <Text>Configurez les emails que vous souhaitez reçevoir</Text>
         </Stack>
 
         <Stack mt="xl">

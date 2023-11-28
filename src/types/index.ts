@@ -64,6 +64,7 @@ export type Product = {
   _id: string;
   title: string;
   sponsor: string,
+  price: string,
   points: number;
   xp?: number;
   start: string;
