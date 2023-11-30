@@ -130,6 +130,8 @@ export default function Users() {
             { value: "", label: "Type d'utlisateur" },
             { value: UserRoles.ADMIN, label: firstLetterUpperCase(UserRoles.ADMIN) },
             { value: UserRoles.STAFF, label: firstLetterUpperCase(UserRoles.STAFF) },
+            { value: UserRoles.BOUNCER, label: "Videur" },
+            { value: UserRoles.CASHIER, label: "Caissier" },
             { value: UserRoles.USER, label: "Utilisateur" }
           ]}
           onChange={(value) => setUserRole(value as string)}

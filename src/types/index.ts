@@ -31,7 +31,9 @@ export type User = {
 export enum UserRoles {
   ADMIN = "ADMIN",
   STAFF = "STAFF",
-  USER = "USER"
+  USER = "USER",
+  BOUNCER = "BOUNCER",
+  CASHIER = "CASHIER"
 }
 
 export enum UserStatus {
@@ -62,6 +64,7 @@ export enum TransactionType {
 
 export type Product = {
   _id: string;
+  id?: number;
   title: string;
   sponsor: string,
   price: string,

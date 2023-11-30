@@ -307,7 +307,7 @@ export default function Events() {
                 <TextInput
                   required
                   id="points"
-                  label="Prix (Points)"
+                  label="Points"
                   onChange={(event) => setSelectedEvent({ ...selectedEvent, points: event.currentTarget.value })}
                   value={selectedEvent?.points}
                 />

@@ -121,7 +121,7 @@ export default function Products() {
           </Menu.Target>
 
           <Menu.Dropdown>
-            <Menu.Item
+            {product?.id !== 0 && <Menu.Item
               icon={<FiX size={16} color={"red"} />}
               onClick={() => {
                 setSelectedProduct(product)
@@ -130,7 +130,7 @@ export default function Products() {
               <Text style={{ color: "red" }}>
                 Supprimer le produit
               </Text>
-            </Menu.Item>
+            </Menu.Item>}
           </Menu.Dropdown>
         </Menu>
       </Group>}
@@ -524,6 +524,7 @@ const ProductInfo = (props: { selectedProduct: Product; onSelectedProductChange:
       />
 
       <TextInput
+        required
         id="stock"
         label="Quantité Disponible"
         onChange={(event) => props.onSelectedProductChange({ ...props.selectedProduct, stock: event.currentTarget.value })}
