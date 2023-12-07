@@ -113,7 +113,7 @@ export default function Products() {
           <BsPencil size={12} color="black" />
         </ActionIcon>
 
-        <Menu shadow="md" offset={0}>
+        {product?.id !== 0 && <Menu shadow="md" offset={0}>
           <Menu.Target>
             <ActionIcon variant="transparent">
               <BsThreeDots size={12} color="black" />
@@ -121,7 +121,7 @@ export default function Products() {
           </Menu.Target>
 
           <Menu.Dropdown>
-            {product?.id !== 0 && <Menu.Item
+            <Menu.Item
               icon={<FiX size={16} color={"red"} />}
               onClick={() => {
                 setSelectedProduct(product)
@@ -130,9 +130,9 @@ export default function Products() {
               <Text style={{ color: "red" }}>
                 Supprimer le produit
               </Text>
-            </Menu.Item>}
+            </Menu.Item>
           </Menu.Dropdown>
-        </Menu>
+        </Menu>}
       </Group>}
     </tr>
   ));
