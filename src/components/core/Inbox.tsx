@@ -223,7 +223,8 @@ export default function Inbox() {
       message: textMessage
         .replaceAll("[nom]", secondUser.lastName)
         .replaceAll("[prénom]", secondUser.firstName)
-        .replaceAll("[prenom]", secondUser.firstName)
+        .replaceAll("[prenom]", secondUser.firstName),
+      titleNotification: firstUser.firstName
     }))
 
     secondUser.affiliatedUsers?.forEach((children: User) => {
