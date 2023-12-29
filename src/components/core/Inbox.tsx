@@ -216,6 +216,21 @@ export default function Inbox() {
     </div>
   )
 
+  function spreadMessage(firstUser: User, secondUser: User) {
+    sendMessage(JSON.stringify({
+      operation: "createConversation",
+      users: [firstUser._id, secondUser._id],
+      message: textMessage
+        .replaceAll("[nom]", secondUser.lastName)
+        .replaceAll("[prénom]", secondUser.firstName)
+        .replaceAll("[prenom]", secondUser.firstName)
+    }))
+
+    secondUser.affiliatedUsers?.forEach((children: User) => {
+      spreadMessage(secondUser, users.find(u => u._id === children))
+    })
+  }
+
   return <>
     <div className={classes.rootContainer}>
       <Group position="apart">
@@ -458,7 +473,7 @@ export default function Inbox() {
               style={{ flex: 1 }}
               placeholder="Ecrivez ici..."
               value={textMessage}
-              onChange={(event) => setTextMessage(event.currentTarget.value.toLowerCase())}
+              onChange={(event) => setTextMessage(event.currentTarget.value)}
             />
             <ActionIcon
               variant="filled"
@@ -466,23 +481,35 @@ export default function Inbox() {
               size="lg"
               onClick={() => {
                 if (textMessage) {
-                  if (values.length)
+                  if (values.length) {
+                    // values.forEach((obj: any) => {
+                    //   if (obj.label.includes("Generation #"))
+                    //     users.filter(u => u.level === obj.value && u.role === UserRoles.USER).forEach((user: User) => {
+                    //       sendMessage(JSON.stringify({
+                    //         operation: "createConversation",
+                    //         users: [profile._id, user._id],
+                    //         message: textMessage
+                    //       }))
+                    //     })
+                    //   else
+                    //     sendMessage(JSON.stringify({
+                    //       operation: "createConversation",
+                    //       users: [profile._id, obj.value],
+                    //       message: textMessage
+                    //     }))
+                    // })
+
+
+                    // spread the message
                     values.forEach((obj: any) => {
                       if (obj.label.includes("Generation #"))
                         users.filter(u => u.level === obj.value && u.role === UserRoles.USER).forEach((user: User) => {
-                          sendMessage(JSON.stringify({
-                            operation: "createConversation",
-                            users: [profile._id, user._id],
-                            message: textMessage
-                          }))
+                          spreadMessage(profile, user)
                         })
                       else
-                        sendMessage(JSON.stringify({
-                          operation: "createConversation",
-                          users: [profile._id, obj.value],
-                          message: textMessage
-                        }))
+                        spreadMessage(profile, users.find(u => u._id === obj.value))
                     })
+                  }
                   // already in a conversation
                   else
                     sendMessage(JSON.stringify({

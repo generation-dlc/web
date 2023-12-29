@@ -11,7 +11,7 @@ export const useUserService = () => {
 
   return {
     getUsers: (mutators: HttpMutators, params?: any) =>
-      get(mutators, { params }),
+      get(mutators, { url: "/all", params }),
     getUsersByProperty: (mutators: HttpMutators, payload: any, params?: any) =>
       post(mutators, { url: "/property", payload, params }),
     getProfile: (mutators: HttpMutators) =>
