@@ -125,7 +125,7 @@ export default function Inbox() {
   useEffect(() => {
     setMultiSelectData([
       ...generations,
-      ...users.map((u: any) => ({ value: u._id, label: u.firstName + " " + u.lastName + (u.generation ? " (#" + u.generation?.number + ")" : "") }))
+      ...users.map((u: any) => ({ value: u._id, label: u.firstName + " " + u.lastName + (u.generation ? " (#" + u.level + ")" : "") }))
     ])
   }, [generations, users])
 
@@ -220,11 +220,11 @@ export default function Inbox() {
     sendMessage(JSON.stringify({
       operation: "createConversation",
       users: [firstUser._id, secondUser._id],
+      title: firstUser.firstName,
       message: textMessage
         .replaceAll("[nom]", secondUser.lastName)
         .replaceAll("[prénom]", secondUser.firstName)
-        .replaceAll("[prenom]", secondUser.firstName),
-      titleNotification: firstUser.firstName
+        .replaceAll("[prenom]", secondUser.firstName)
     }))
 
     secondUser.affiliatedUsers?.forEach((children: User) => {
