@@ -108,7 +108,7 @@ export default function Inbox() {
 
     getGenerationsConfig({
       error: console.error,
-      success: (res) => setGenerations(Object.keys(res).map((obj: any, index: number) => ({ value: index + 1, label: "Generation #" + (index + 1) })))
+      success: (res) => setGenerations(Object.keys(res).map((obj: any, index: number) => ({ value: index, label: "Generation #" + (index) })))
     })
 
     getUsers({
