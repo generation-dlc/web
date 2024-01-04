@@ -33,7 +33,7 @@ export default function Settings() {
       error: console.error,
       success: (res) => {
         setGenerationConfig(res)
-        setNbLevels(Object.keys(res).length)
+        setNbLevels(Object.keys(res).length - 1)
       }
     })
   }, [])
@@ -105,7 +105,7 @@ export default function Settings() {
 
   const rowsLevels = Object.keys(generationConfig).map((level: any, index: number) =>
     <tr key={index} style={{ position: "relative" }}>
-      <td><Text>Niveau #{index + 1}</Text></td>
+      <td><Text>Niveau #{index}</Text></td>
       <td>
         {index === 0
           ? <TextInput
@@ -121,14 +121,14 @@ export default function Settings() {
                 }
 
               // @ts-ignore
-              generationConfig[level].nbUsers = event.currentTarget.value
-              setGenerationConfig({ ...generationConfig })
+              // generationConfig[level].nbUsers = event.currentTarget.value
+              // setGenerationConfig({ ...generationConfig })
             }}
           />
-          : "-"}
+          : generationConfig[parseInt(level) - 1].nbUsers * generationConfig[parseInt(level) - 1].maxAffiliatedUsers}
       </td>
       <td>
-        <TextInput
+        {index !== Object.keys(generationConfig).length - 1 && <TextInput
           size="xs"
           id="maxAffiliated"
           value={generationConfig[level]?.maxAffiliatedUsers || 0}
@@ -141,12 +141,17 @@ export default function Settings() {
               }
             // @ts-ignore
             generationConfig[level].maxAffiliatedUsers = event.currentTarget.value
+            let i = parseInt(level)
+            while (i < Object.keys(generationConfig).length - 1) {
+              generationConfig[i + 1].nbUsers = generationConfig[i].nbUsers * parseInt(event.currentTarget.value)
+              i++
+            }
             setGenerationConfig({ ...generationConfig })
           }}
-        />
+        />}
       </td>
       <td>
-        <TextInput
+        {index !== 0 && <TextInput
           size="xs"
           id="commission"
           value={generationConfig[level]?.commission || 0}
@@ -161,7 +166,7 @@ export default function Settings() {
             generationConfig[level].commission = event.currentTarget.value
             setGenerationConfig({ ...generationConfig })
           }}
-        />
+        />}
       </td>
     </tr>
   )
@@ -311,19 +316,23 @@ export default function Settings() {
 
                 if (parseInt(value as string) < Object.keys(generationConfig).length)
                   Object.keys(generationConfig)
-                    .slice(parseInt(value as string))
+                    .slice(parseInt(value as string) + 1)
                     .forEach(key => delete generationConfig[key])
                 else {
-                  Array.from(Array(parseInt(value as string) - Object.keys(generationConfig).length).keys())
-                    .map(i => generationConfig[Object.keys(generationConfig).length + i + 1] = {
+                  let i = Object.keys(generationConfig).length
+                  while (i <= parseInt(value as string)) {
+                    generationConfig[i] = {
                       nbUsers: 0,
                       commission: 0,
                       maxAffiliatedUsers: 0
-                    })
+                    }
+                    i++
+                  }
                 }
 
                 setGenerationConfig({ ...generationConfig })
-              }}
+              }
+              }
             />
           </Stack>
         </Group>

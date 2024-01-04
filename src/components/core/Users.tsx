@@ -57,7 +57,7 @@ export default function Users() {
       <td>{"Il y'a " + differenceInDays(new Date(), new Date(user.lastActivity)) + " jour(s)"}</td>
       <td>{(user.xp / 1000).toFixed(1)}k</td>
       <td>{user.balance} pts</td>
-      <td>{user.generation?.number ? "#" + user.generation?.number : ""}</td>
+      <td>{user.role === UserRoles.USER && "#" + user.level}</td>
       <td>
         <Badge color={user.status === UserStatus.ON ? "blue" : "red"}>
           {user.status === UserStatus.ON ? "actif" : "désactivé"}
