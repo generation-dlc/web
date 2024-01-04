@@ -121,8 +121,14 @@ export default function Settings() {
                 }
 
               // @ts-ignore
-              // generationConfig[level].nbUsers = event.currentTarget.value
-              // setGenerationConfig({ ...generationConfig })
+              generationConfig[level].nbUsers = event.currentTarget.value
+              let i = parseInt(level)
+              while (i < Object.keys(generationConfig).length - 1) {
+                console.log(generationConfig[i].maxAffiliated)
+                generationConfig[i + 1].nbUsers = generationConfig[i].nbUsers * generationConfig[i].maxAffiliatedUsers
+                i++
+              }
+              setGenerationConfig({ ...generationConfig })
             }}
           />
           : generationConfig[parseInt(level) - 1].nbUsers * generationConfig[parseInt(level) - 1].maxAffiliatedUsers}
