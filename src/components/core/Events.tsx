@@ -24,6 +24,7 @@ export default function Events() {
   const [selectedEvent, setSelectedEvent] = useState<Event | any>()
   const [selectedEventParticipantsRows, setSelectedEventParticipantsRows] = useState([])
   const [selectedEventSharesRows, setSelectedEventSharesRows] = useState([])
+  const [saveLoading, setSaveLoading] = useState(false)
 
   useEffect(() => {
     getEvents({
@@ -374,6 +375,7 @@ export default function Events() {
             Annuler
           </Text>
           <Button
+            loading={saveLoading}
             onClick={() => {
               const formData = new FormData()
 
@@ -384,6 +386,7 @@ export default function Events() {
               if (selectedEvent._id)
                 editEvent({
                   error: console.error,
+                  loading: (value) => setSaveLoading(value),
                   success: (res) => {
                     for (let i = 0; i < events.length; i++) {
                       for (let x = 0; x < events[i].length; x++) {
@@ -400,6 +403,7 @@ export default function Events() {
               else
                 addEvent({
                   error: console.error,
+                  loading: (value) => setSaveLoading(value),
                   success: (res) => {
                     const tmpLs = []
                     for (let i = 0; i < events.length; i++) {

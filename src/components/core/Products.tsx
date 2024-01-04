@@ -15,39 +15,7 @@ export default function Products() {
   const { classes } = useStyles();
   const { getProductsByProperty, addProduct, editProduct, removeProduct } = useProductService()
   const { getTransactions } = useTransactionService()
-
-  const transactions: any = useRef([
-    {
-      _id: "0",
-      date: new Date().toISOString(),
-      type: TransactionType.ACTION,
-      description: "Entrée",
-      points: 20,
-      xp: 20,
-      from: { _id: "0", firstName: "Thomas", lastName: "Dupuis", role: UserRoles.STAFF },
-      to: { _id: "1", firstName: "Laure", lastName: "Vandenberg", role: UserRoles.USER },
-      actionId: "0"
-    },
-    {
-      _id: "1",
-      date: new Date().toISOString(),
-      type: TransactionType.EVENT,
-      description: "Ticket - Bling King 11/07/2023",
-      points: -120,
-      from: { _id: "0", firstName: "Thomas", lastName: "Dupuis", role: UserRoles.STAFF },
-      to: { _id: "1", firstName: "Laure", lastName: "Vandenberg", role: UserRoles.USER },
-      eventId: "0"
-    },
-    {
-      _id: "2",
-      date: new Date().toISOString(),
-      type: TransactionType.PRODUCT,
-      description: "Bon d'achat Paint Quotidientcdskjncdsjknxs",
-      points: -90,
-      to: { _id: "1", firstName: "Laure", lastName: "Vandenberg", role: UserRoles.USER },
-      productId: "0"
-    }
-  ])
+  const [saveLoading, setSaveLoading] = useState(false)
 
   const [loading, setLoading] = useState<boolean>(true)
   const [products, setProducts] = useState<Product[]>([])
@@ -303,6 +271,7 @@ export default function Products() {
           Annuler
         </Text>
         <Button
+          loading={saveLoading}
           onClick={() => {
             const formData = new FormData()
 
@@ -313,6 +282,7 @@ export default function Products() {
             if (selectedProduct._id)
               editProduct({
                 error: console.error,
+                loading: (value) => setSaveLoading(value),
                 success: (res) => {
                   products[products.map(product => product._id).indexOf(res._id)] = res
                   setProducts([...products])
@@ -322,6 +292,7 @@ export default function Products() {
             else
               addProduct({
                 error: console.error,
+                loading: (value) => setSaveLoading(value),
                 success: (res) => {
                   setProducts([...products, res])
                   setShowEditProductModal(false)
@@ -515,6 +486,7 @@ const ProductInfo = (props: { selectedProduct: Product; onSelectedProductChange:
     {/* available && stock */}
     <Group position="apart" grow>
       <DateRangePicker
+        required
         dropdownPosition="bottom-start"
         label="Disponibilité"
         placeholder="Pick dates range"
@@ -533,7 +505,7 @@ const ProductInfo = (props: { selectedProduct: Product; onSelectedProductChange:
     </Group >
 
     {/* description */}
-    < Textarea
+    <Textarea
       placeholder="Ecrivez ici..."
       label="Description"
       maxRows={4}
