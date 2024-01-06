@@ -226,7 +226,12 @@ const Item = ({ user, generations }: { user: User, generations: any }) => {
 
             <Stack align="center" style={{ gap: 0 }}>
               <Text weight="bold" style={{ color: "black" }}>
-                {calculXp(user, generations)}
+                {(() => {
+                  let totalXp = calculXp(user, generations)
+                  if (totalXp % 1 > 0)
+                    totalXp = parseFloat(totalXp.toFixed(2))
+                  return totalXp
+                })()}
               </Text>
               <Group style={{ gap: 0 }}>
                 <Text size="sm">XP</Text>
