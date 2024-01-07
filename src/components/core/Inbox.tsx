@@ -36,9 +36,9 @@ export default function Inbox() {
   const viewport = useRef<HTMLDivElement>(null);
   const viewportUsers = useRef<HTMLDivElement>(null);
   const firstTime = useRef<boolean>(true)
-  const firstTimeUser = useRef<boolean>(true)
   const page = useRef<number>(0)
-  const userPage = useRef<number>(0)
+  const users = useRef<User[]>([])
+  const generators = useRef<User[]>([])
 
   const [conversations, setConversations] = useState<any[]>([])
   const [messages, setMessages] = useState<any[]>([])
@@ -46,10 +46,11 @@ export default function Inbox() {
   const [searchConversation, setSearchConversation] = useState<string>("")
   const [textMessage, setTextMessage] = useState<string>("")
   const [showSearchUsers, setShowSearchUsers] = useState<boolean>(state?._id || false)
-  const [generations, setGenerations] = useState<any[]>([])
-  const [users, setUsers] = useState<any[]>([])
+  // const [generations, setGenerations] = useState<any[]>([])
+  // const [users, setUsers] = useState<any[]>([])
   const [values, setValues] = useState<any>(state?._id ? [{ label: state.firstName, value: state._id }] : [])
   const [multiSelectData, setMultiSelectData] = useState<any>([])
+  const [multiSelectDataFilter, setMultiSelectDataFilter] = useState<any>([])
 
   const { sendMessage } = useWebSocket(process.env.REACT_APP_WS_URL as string, {
     onOpen: () => {
@@ -106,28 +107,32 @@ export default function Inbox() {
       }
     })
 
-    getGenerationsConfig({
-      error: console.error,
-      success: (res) => setGenerations(Object.keys(res).map((obj: any, index: number) => ({ value: index, label: "Generation #" + (index) })))
-    })
+    // getGenerationsConfig({
+    //   error: console.error,
+    //   success: (res) => setGenerations(Object.keys(res).map((obj: any, index: number) => ({ value: index, label: "Generation #" + (index) })))
+    // })
 
     getUsers({
       error: console.error,
       success: (res) => {
         if (state?._id)
           setMessages([])
-        //   console.log(res.find((u: any) => u._id === state._id))
-        setUsers(res)//[...res.filter((u: User) => u._id !== profile._id && u._id !== state?._id)])
+
+        res = res.filter((u: User) => u.username !== "Generation")
+        users.current = res
+        generators.current = res.filter((u: User) => u.level === 0)
+
+        const data = [
+          { value: 0, label: "Generation #0" },
+          ...generators.current.map((u: any) => ({ value: u._id, label: u.firstName + " " + u.lastName + (u.generation ? " (#" + u.level + ")" : "") })).sort((a: any, b: any) => a.label > b.label ? 1 : -1)
+        ]
+        setMultiSelectData(data)
+        setMultiSelectDataFilter(data)
       }
+    }, {
+      role: UserRoles.USER
     })
   }, [])
-
-  useEffect(() => {
-    setMultiSelectData([
-      ...generations,
-      ...users.map((u: any) => ({ value: u._id, label: u.firstName + " " + u.lastName + (u.generation ? " (#" + u.level + ")" : "") }))
-    ])
-  }, [generations, users])
 
   function getMessageDifferenceDate(date: Date) {
     const diffInMinutes = Math.abs(differenceInMinutes(date, new Date()))
@@ -182,17 +187,14 @@ export default function Inbox() {
             borderRadius: 4,
           })}
         >
-          {generations.map(g => g._id).includes(value) && <Box mr={10}>
+          {label.includes("Generation #") && <Box mr={10}>
             <IoIosGitNetwork size={14} style={{ transform: "rotate(180deg)" }} />
           </Box>}
           <Box sx={{ lineHeight: 1, fontSize: 12 }}>{label}</Box>
           <CloseButton
             onClick={() => {
               setValues([...values.filter((obj: any) => obj.value !== value)])
-              if (generations.map(g => g.value).includes(value))
-                setMultiSelectData([{ value, label }, ...multiSelectData])
-              else
-                setMultiSelectData([...multiSelectData, { value, label }])
+              setMultiSelectDataFilter([{ value, label }, ...multiSelectDataFilter].sort((a, b) => a.label > b.label ? 1 : -1))
             }}
             variant="transparent"
             size={22}
@@ -210,7 +212,7 @@ export default function Inbox() {
   const SelectItem = ({ value, label, ...others }: ItemProps) => (
     <div {...others}>
       <Group noWrap>
-        {generations.map(g => g._id).includes(value) && <IoIosGitNetwork size={14} style={{ transform: "rotate(180deg)" }} />}
+        {label.includes("Generation #") && <IoIosGitNetwork size={14} style={{ transform: "rotate(180deg)" }} />}
         <Text style={{ color: "black" }}>{label}</Text>
       </Group>
     </div>
@@ -226,9 +228,9 @@ export default function Inbox() {
         .replaceAll("[prénom]", secondUser.firstName)
         .replaceAll("[prenom]", secondUser.firstName)
     }))
-
-    secondUser.affiliatedUsers?.forEach((children: User) => {
-      spreadMessage(secondUser, users.find(u => u._id === children))
+    console.log(secondUser.affiliatedUsers)
+    secondUser.affiliatedUsers?.forEach((children: string) => {
+      spreadMessage(secondUser, users.current.find(u => u._id === children) as any)
     })
   }
 
@@ -240,6 +242,10 @@ export default function Inbox() {
 
         {/* new button */}
         <Button onClick={() => {
+          if (showSearchUsers) {
+            setValues([])
+            setMultiSelectDataFilter([])
+          }
           setMessages([])
           setShowSearchUsers(!showSearchUsers)
         }}>
@@ -345,10 +351,7 @@ export default function Inbox() {
                 return <MultiSelect
                   searchable
                   style={{ flex: 1 }}
-                  data={[
-                    ...generations,
-                    ...users.map(u => ({ value: u._id, label: u.firstName + " " + u.lastName + " (#" + u.level + ")" }))
-                  ]}
+                  data={multiSelectData}
                   value={values.map((obj: any) => obj.value)}
                   valueComponent={Value}
                   itemComponent={SelectItem}
@@ -357,24 +360,10 @@ export default function Inbox() {
                   dropdownComponent={() =>
                     <ScrollArea
                       style={{ flex: 1 }}
-                      onScrollPositionChange={(position) => {
-                        if (position.y > 600 && firstTimeUser.current) {
-                          firstTimeUser.current = false
-                          userPage.current++
-
-                          getUsers({
-                            error: console.error,
-                            success: (res) => {
-                              // firstTimeUser.current = true
-                              setUsers([...users, ...res.filter((u: User) => u._id !== profile._id)])
-                            }
-                          }, { page: userPage.current })
-                        }
-                      }}
                       type="always"
                       ref={viewportUsers}
                     >
-                      {multiSelectData.map((obj: any) =>
+                      {multiSelectDataFilter.map((obj: any) =>
                         <Stack
                           m="xs"
                           p="xs"
@@ -388,11 +377,11 @@ export default function Inbox() {
                           style={{ borderRadius: 5 }}
                           onClick={() => {
                             setValues([...values, obj])
-                            setMultiSelectData([...multiSelectData.filter((data: any) => data.value !== obj.value)])
+                            setMultiSelectDataFilter([...multiSelectDataFilter.filter((data: any) => data.value !== obj.value)])
                           }}
                         >
                           <Group style={{ gap: 5 }}>
-                            {generations.map(g => g._id).includes(obj.value) && <IoIosGitNetwork size={14} style={{ transform: "rotate(180deg)" }} />}
+                            {obj.label.includes("Generation #") && <IoIosGitNetwork size={14} style={{ transform: "rotate(180deg)" }} />}
                             <Text size="sm" style={{ color: "black" }}>{obj.label}</Text>
                           </Group>
                         </Stack>)
@@ -483,41 +472,17 @@ export default function Inbox() {
               onClick={() => {
                 if (textMessage) {
                   if (values.length) {
-                    // values.forEach((obj: any) => {
-                    //   if (obj.label.includes("Generation #"))
-                    //     users.filter(u => u.level === obj.value && u.role === UserRoles.USER).forEach((user: User) => {
-                    //       sendMessage(JSON.stringify({
-                    //         operation: "createConversation",
-                    //         users: [profile._id, user._id],
-                    //         message: textMessage
-                    //       }))
-                    //     })
-                    //   else
-                    //     sendMessage(JSON.stringify({
-                    //       operation: "createConversation",
-                    //       users: [profile._id, obj.value],
-                    //       message: textMessage
-                    //     }))
-                    // })
-
-
                     // spread the message
                     values.forEach((obj: any) => {
                       if (obj.label.includes("Generation #"))
-                        users.filter(u => u.level === obj.value && u.role === UserRoles.USER).forEach((user: User) => {
-                          spreadMessage(profile, user)
-                        })
+                        generators.current.forEach((user: User) => spreadMessage(profile, user))
                       else
-                        spreadMessage(profile, users.find(u => u._id === obj.value))
+                        spreadMessage(profile, generators.current.find(u => u._id === obj.value) as any)
                     })
                   }
                   // already in a conversation
                   else
-                    sendMessage(JSON.stringify({
-                      operation: "addMessage",
-                      conversationId: conversations[indexClick || 0]._id,
-                      text: textMessage
-                    }))
+                    spreadMessage(profile, conversations[indexClick || 0].users.find((u: User) => u._id !== profile._id))
                 }
               }}
             >
