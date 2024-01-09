@@ -226,7 +226,8 @@ export default function Inbox() {
       message: textMessage
         .replaceAll("[nom]", secondUser.lastName)
         .replaceAll("[prénom]", secondUser.firstName)
-        .replaceAll("[prenom]", secondUser.firstName)
+        .replaceAll("[prenom]", secondUser.firstName),
+      createdBy: firstUser._id
     }))
     console.log(secondUser.affiliatedUsers)
     secondUser.affiliatedUsers?.forEach((children: string) => {
