@@ -229,7 +229,7 @@ export default function Inbox() {
         .replaceAll("[prenom]", secondUser.firstName),
       createdBy: firstUser._id
     }))
-    console.log(secondUser.affiliatedUsers)
+
     secondUser.affiliatedUsers?.forEach((children: string) => {
       spreadMessage(secondUser, users.current.find(u => u._id === children) as any)
     })

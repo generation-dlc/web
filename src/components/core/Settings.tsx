@@ -124,7 +124,6 @@ export default function Settings() {
               generationConfig[level].nbUsers = event.currentTarget.value
               let i = parseInt(level)
               while (i < Object.keys(generationConfig).length - 1) {
-                console.log(generationConfig[i].maxAffiliated)
                 generationConfig[i + 1].nbUsers = generationConfig[i].nbUsers * generationConfig[i].maxAffiliatedUsers
                 i++
               }
@@ -145,11 +144,12 @@ export default function Settings() {
                 commission: 0,
                 maxAffiliatedUsers: 0
               }
+
             // @ts-ignore
-            generationConfig[level].maxAffiliatedUsers = event.currentTarget.value
+            generationConfig[level].maxAffiliatedUsers = parseInt(event.currentTarget.value)
             let i = parseInt(level)
             while (i < Object.keys(generationConfig).length - 1) {
-              generationConfig[i + 1].nbUsers = generationConfig[i].nbUsers * parseInt(event.currentTarget.value)
+              generationConfig[i + 1].nbUsers = generationConfig[i].nbUsers * generationConfig[i].maxAffiliatedUsers
               i++
             }
             setGenerationConfig({ ...generationConfig })
