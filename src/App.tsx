@@ -74,7 +74,7 @@ function App() {
             <Route index element={<Navigate to="/generations" replace />} />
           </Route>
           <Route path="/sign-in" element={<Navigate to="/generations" replace />} />
-          <Route path="*" element={<Navigate to="/generations" replace />} />
+          {/* <Route path="*" element={<Navigate to="/generations" replace />} /> */}
         </>
         : config.isDisabled
           ? <Route element={<BaseLayout />}>
