@@ -472,7 +472,18 @@ export default function Inbox() {
               size="lg"
               onClick={() => {
                 if (textMessage) {
-                  if (values.length) {
+                  if (state?._id)
+                    sendMessage(JSON.stringify({
+                      operation: "createConversation",
+                      users: [profile._id, state._id],
+                      title: profile.firstName,
+                      message: textMessage
+                        .replaceAll("[nom]", state.lastName || "")
+                        .replaceAll("[prénom]", state.firstName || "")
+                        .replaceAll("[prenom]", state.firstName || ""),
+                      createdBy: profile._id
+                    }))
+                  else if (values.length) {
                     // spread the message
                     values.forEach((obj: any) => {
                       if (obj.label.includes("Generation #"))
@@ -484,6 +495,8 @@ export default function Inbox() {
                   // already in a conversation
                   else
                     spreadMessage(profile, conversations[indexClick || 0].users.find((u: User) => u._id !== profile._id))
+
+                  setTextMessage("")
                 }
               }}
             >
