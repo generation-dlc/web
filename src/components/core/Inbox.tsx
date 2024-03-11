@@ -270,6 +270,9 @@ export default function Inbox() {
               key={conversation._id}
               style={{ backgroundColor: indexClick === index ? "#FFFFFF" : "" }}
               onClick={() => {
+                if (indexClick !== index)
+                  setTextMessage("")
+
                 setValues([])
                 setShowSearchUsers(false)
                 setIndexClick(index)
@@ -495,9 +498,8 @@ export default function Inbox() {
                   // already in a conversation
                   else
                     spreadMessage(profile, conversations[indexClick || 0].users.find((u: User) => u._id !== profile._id))
-
-                  setTextMessage("")
                 }
+                setTextMessage("")
               }}
             >
               <FiSend size={18} />
