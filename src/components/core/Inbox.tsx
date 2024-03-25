@@ -219,6 +219,9 @@ export default function Inbox() {
   )
 
   function spreadMessage(firstUser: User, secondUser: User) {
+    if (!firstUser || !secondUser)
+      return
+
     sendMessage(JSON.stringify({
       operation: "createConversation",
       users: [firstUser._id, secondUser._id],
@@ -475,8 +478,6 @@ export default function Inbox() {
               size="lg"
               onClick={() => {
                 if (textMessage) {
-                  console.log(state)
-                  console.log(state?._id)
                   if (state?._id)
                     sendMessage(JSON.stringify({
                       operation: "createConversation",
