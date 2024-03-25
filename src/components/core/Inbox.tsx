@@ -122,6 +122,8 @@ export default function Inbox() {
         users.current = res
         generators.current = res.filter((u: User) => u.level === 0)
 
+        console.log(generators.current)
+
         const data = [
           { value: 0, label: "Generation #0" },
           ...generators.current.map((u: any) => ({ value: u._id, label: u.firstName + " " + u.lastName + (u.generation ? " (#" + u.level + ")" : "") })).sort((a: any, b: any) => a.label > b.label ? 1 : -1)
@@ -499,7 +501,9 @@ export default function Inbox() {
                   else
                     spreadMessage(profile, conversations[indexClick || 0].users.find((u: User) => u._id !== profile._id))
                 }
+
                 setTextMessage("")
+                state._id = undefined
               }}
             >
               <FiSend size={18} />
