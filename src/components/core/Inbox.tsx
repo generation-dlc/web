@@ -280,6 +280,7 @@ export default function Inbox() {
                 setValues([])
                 setShowSearchUsers(false)
                 setIndexClick(index)
+                setSendToHimOnlyChecked(false)
                 setMessages(conversations[index].messages)
                 setTimeout(() => {
                   viewport.current?.scrollTo({ top: viewport.current.scrollHeight })
