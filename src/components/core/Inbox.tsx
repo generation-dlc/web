@@ -489,7 +489,7 @@ export default function Inbox() {
                     if (sendToHimOnlyChecked)
                       sendMessage(JSON.stringify({
                         operation: "createConversation",
-                        users: [profile._id, state._id],
+                        users: [profile._id, generators.current.find(u => u._id === values[0].value)],
                         title: profile.firstName,
                         message: textMessage
                           .replaceAll("[nom]", state.lastName || "")
