@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createStyles, Group, Title, Button, Paper, Stack, Text, Avatar, TextInput, ActionIcon, ScrollArea, Divider, MultiSelect, MultiSelectValueProps, CloseButton, Box } from "@mantine/core";
+import { createStyles, Group, Title, Button, Paper, Stack, Text, Avatar, TextInput, ActionIcon, ScrollArea, Divider, MultiSelect, MultiSelectValueProps, CloseButton, Box, Checkbox } from "@mantine/core";
 import 'rc-rate/assets/index.css';
 import "@szhsin/react-menu/dist/core.css";
 import 'rc-rate/assets/index.css';
@@ -51,6 +51,7 @@ export default function Inbox() {
   const [values, setValues] = useState<any>(state?._id ? [{ label: state.firstName, value: state._id }] : [])
   const [multiSelectData, setMultiSelectData] = useState<any>([])
   const [multiSelectDataFilter, setMultiSelectDataFilter] = useState<any>([])
+  const [sendToHimOnlyChecked, setSendToHimOnlyChecked] = useState<boolean>(state?._id ? true : false)
 
   const { sendMessage } = useWebSocket(process.env.REACT_APP_WS_URL as string, {
     onOpen: () => {
@@ -465,51 +466,59 @@ export default function Inbox() {
           }
 
           {/* text input */}
-          <Group p={20} style={{ width: "100%", position: "absolute", left: 0, bottom: 20, backgroundColor: "white" }}>
-            <TextInput
-              style={{ flex: 1 }}
-              placeholder="Ecrivez ici..."
-              value={textMessage}
-              onChange={(event) => setTextMessage(event.currentTarget.value)}
+          <Stack p={20} style={{ width: "100%", position: "absolute", left: 0, bottom: 20, backgroundColor: "white" }}>
+            <Checkbox
+              label="Envoyer uniquement à cette personne"
+              checked={sendToHimOnlyChecked}
+              onChange={(event) => setSendToHimOnlyChecked(event.currentTarget.checked)}
             />
-            <ActionIcon
-              variant="filled"
-              color="blue"
-              size="lg"
-              onClick={() => {
-                if (textMessage) {
-                  if (state?._id)
-                    sendMessage(JSON.stringify({
-                      operation: "createConversation",
-                      users: [profile._id, state._id],
-                      title: profile.firstName,
-                      message: textMessage
-                        .replaceAll("[nom]", state.lastName || "")
-                        .replaceAll("[prénom]", state.firstName || "")
-                        .replaceAll("[prenom]", state.firstName || ""),
-                      createdBy: profile._id
-                    }))
-                  else if (values.length) {
-                    // spread the message
-                    values.forEach((obj: any) => {
-                      if (obj.label.includes("Generation #"))
-                        generators.current.forEach((user: User) => spreadMessage(profile, user))
-                      else
-                        spreadMessage(profile, generators.current.find(u => u._id === obj.value) as any)
-                    })
+            <Group>
+              <TextInput
+                style={{ flex: 1 }}
+                placeholder="Ecrivez ici..."
+                value={textMessage}
+                onChange={(event) => setTextMessage(event.currentTarget.value)}
+              />
+              <ActionIcon
+                variant="filled"
+                color="blue"
+                size="lg"
+                onClick={() => {
+                  if (textMessage) {
+                    if (sendToHimOnlyChecked)
+                      sendMessage(JSON.stringify({
+                        operation: "createConversation",
+                        users: [profile._id, state._id],
+                        title: profile.firstName,
+                        message: textMessage
+                          .replaceAll("[nom]", state.lastName || "")
+                          .replaceAll("[prénom]", state.firstName || "")
+                          .replaceAll("[prenom]", state.firstName || ""),
+                        createdBy: profile._id
+                      }))
+                    else if (values.length) {
+                      // spread the message
+                      values.forEach((obj: any) => {
+                        if (obj.label.includes("Generation #"))
+                          generators.current.forEach((user: User) => spreadMessage(profile, user))
+                        else
+                          spreadMessage(profile, generators.current.find(u => u._id === obj.value) as any)
+                      })
+                    }
+                    // already in a conversation
+                    else
+                      spreadMessage(profile, conversations[indexClick || 0].users.find((u: User) => u._id !== profile._id))
                   }
-                  // already in a conversation
-                  else
-                    spreadMessage(profile, conversations[indexClick || 0].users.find((u: User) => u._id !== profile._id))
-                }
 
-                setTextMessage("")
-                state._id = undefined
-              }}
-            >
-              <FiSend size={18} />
-            </ActionIcon>
-          </Group>
+                  setTextMessage("")
+                  setSendToHimOnlyChecked(false)
+                  state._id = undefined
+                }}
+              >
+                <FiSend size={18} />
+              </ActionIcon>
+            </Group>
+          </Stack>
         </ScrollArea>
       </Group>
     </div >
