@@ -488,7 +488,7 @@ export default function Inbox() {
                   if (textMessage) {
                     if (sendToHimOnlyChecked) {
                       const secondUser = values.length
-                        ? values[0].value
+                        ? generators.current.find(u => u._id === values[0].value)
                         : conversations[indexClick || 0].users.find((u: User) => u._id !== profile._id)
 
                       sendMessage(JSON.stringify({
