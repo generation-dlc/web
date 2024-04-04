@@ -31,7 +31,7 @@ export default function Inbox() {
   const { getGenerationsConfig } = useGenerationsConfigService()
   const { getUsers } = useUserService()
 
-  const { state } = useLocation()
+  let { state } = useLocation()
 
   const viewport = useRef<HTMLDivElement>(null);
   const viewportUsers = useRef<HTMLDivElement>(null);
@@ -487,20 +487,22 @@ export default function Inbox() {
                 onClick={() => {
                   if (textMessage) {
                     if (sendToHimOnlyChecked) {
+                      const secondUser = values.length
+                        ? values[0].value
+                        : conversations[indexClick || 0].users.find((u: User) => u._id !== profile._id)
+
                       sendMessage(JSON.stringify({
                         operation: "createConversation",
                         users:
                           [
                             profile._id,
-                            values.length
-                              ? values[0].value
-                              : conversations[indexClick || 0].users.find((u: User) => u._id !== profile._id)._id
+                            secondUser._id
                           ],
                         title: profile.firstName,
                         message: textMessage
-                          .replaceAll("[nom]", state.lastName || "")
-                          .replaceAll("[prénom]", state.firstName || "")
-                          .replaceAll("[prenom]", state.firstName || ""),
+                          .replaceAll("[nom]", secondUser.lastName || "")
+                          .replaceAll("[prénom]", secondUser.firstName || "")
+                          .replaceAll("[prenom]", secondUser.firstName || ""),
                         createdBy: profile._id
                       }))
                     }
@@ -520,7 +522,7 @@ export default function Inbox() {
 
                   setTextMessage("")
                   setSendToHimOnlyChecked(false)
-                  state._id = undefined
+                  state = undefined
                 }}
               >
                 <FiSend size={18} />
