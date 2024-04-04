@@ -486,10 +486,16 @@ export default function Inbox() {
                 size="lg"
                 onClick={() => {
                   if (textMessage) {
-                    if (sendToHimOnlyChecked)
+                    if (sendToHimOnlyChecked) {
                       sendMessage(JSON.stringify({
                         operation: "createConversation",
-                        users: [profile._id, generators.current.find(u => u._id === values[0].value)],
+                        users:
+                          [
+                            profile._id,
+                            values.length
+                              ? values[0].value
+                              : conversations[indexClick || 0].users.find((u: User) => u._id !== profile._id)._id
+                          ],
                         title: profile.firstName,
                         message: textMessage
                           .replaceAll("[nom]", state.lastName || "")
@@ -497,6 +503,7 @@ export default function Inbox() {
                           .replaceAll("[prenom]", state.firstName || ""),
                         createdBy: profile._id
                       }))
+                    }
                     else if (values.length) {
                       // spread the message
                       values.forEach((obj: any) => {
