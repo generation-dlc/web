@@ -466,7 +466,7 @@ export default function Inbox() {
           }
 
           {/* text input */}
-          <Stack p={20} style={{ width: "100%", position: "absolute", left: 0, bottom: 20, backgroundColor: "white" }}>
+          <Stack p={20} pt={0} style={{ width: "100%", position: "absolute", left: 0, bottom: 20, backgroundColor: "white" }}>
             <Checkbox
               label="Envoyer uniquement à cette personne"
               checked={sendToHimOnlyChecked}
